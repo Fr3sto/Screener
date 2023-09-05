@@ -6,10 +6,10 @@ yourdomain {
 
 yourdomain/static/ {
   root /Screener/staticfiles/
-  tls yandex
+  tls fr3sto@yandex.ru
 }
 
 yourdomain/media/ {
   root /Screener/media/
-  tls yandex
+  tls fr3sto@yandex.ru
 }

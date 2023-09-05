@@ -6,7 +6,7 @@ services:
   web:
       build: .
       depends_on:
-        - postgres
+        - sqlite3
       container_name: Screener
       volumes:
       - .:/Screener
