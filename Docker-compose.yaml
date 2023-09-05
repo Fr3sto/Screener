@@ -1,0 +1,46 @@
+# docker-compose.yaml
+
+version: '3'
+services:
+
+  web:
+      build: .
+      depends_on:
+        - postgres
+      container_name: Screener
+      volumes:
+      - .:/Screener
+      - static:/Screener/staticfiles
+      - media:/Screener/media
+      expose:
+        - 8000
+      command: bash -c "python manage.py collectstatic --no-input && python manage.py makemigrations && python manage.py migrate && gunicorn --workers=3 PROJECT_NAME.wsgi -b 0.0.0.0:8000"
+
+  sqlite3:
+    image: nouchka/sqlite3:latest
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./db/:/root/db/
+
+  caddy:
+    image: abiosoft/caddy
+    depends_on:
+    - "web"
+    restart: always
+    environment:
+      ACME_AGREE: "true"
+    ports:
+    - "80:80"
+    - "443:443"
+    volumes:
+    - ./Caddyfile:/etc/Caddyfile
+    - caddy_certs:/root/.caddy
+    - media:/Screener/media
+    - static:/Screener/staticfiles
+
+volumes:
+  pgdata:
+  media:
+  static:
+  caddy_certs:

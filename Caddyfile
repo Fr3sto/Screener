@@ -1,0 +1,15 @@
+yourdomain {
+  bind {$ADDRESS}
+  proxy / web:8000
+  tls fr3sto@yandex.ru
+}
+
+yourdomain/static/ {
+  root /Screener/staticfiles/
+  tls yandex
+}
+
+yourdomain/media/ {
+  root /Screener/media/
+  tls yandex
+}

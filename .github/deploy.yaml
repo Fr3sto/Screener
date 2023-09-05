@@ -1,0 +1,21 @@
+name: Deploy
+
+on: [push]
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/master'
+    runs-on: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Push to server
+        uses: appleboy/ssh-action@master
+        with:
+          host:  45.12.75.165
+          username: root  
+          password: Endorphin25)
+          script: |
+            cd YOUR_PROJECT
+            git pull
+            docker-compose down
+            docker-compose up -d   
