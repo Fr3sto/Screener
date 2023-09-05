@@ -14,7 +14,7 @@ jobs:
           host:  45.12.75.165
           username: root  
           password: Endorphin25)
-          script: |
+          dscript: |
             cd YOUR_PROJECT
             git pull
             docker-compose down
