@@ -9,6 +9,7 @@ from binance import ThreadedWebsocketManager
 from datetime import datetime
 
 
+
 @admin.register(BinanceKey)
 class BinanceKeyAdmin(admin.ModelAdmin):
     list_display = ('api', 'secret')
