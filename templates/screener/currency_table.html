@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %} Impulse Screener {% endblock %}
+
+{% block content%}
+
+<table class="table mt-5 table-bordered table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>TF 1 min</th>
+            <th>TF 5 min</th>
+            <th>TF 15 min</th>
+            <th width='10%'></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for el in result %}
+            <tr>
+                <td>{{el.name}}</td>
+                {% load my_color_filter %}
+                <td class="{{el.tf1.isOpen|my_color_filter}}">
+                    {% if el.tf1.isOpen == 1%}
+                        <a style='color:white' href={% url 'screener:test_view' el.name '1'%}>В импульсе</a>
+                    {% else %}
+                        <a style='color:black' href={% url 'screener:test_view' el.name '1'%}>Ожидаем</a>
+                    {% endif%}
+                </td>
+                <td class="{{el.tf5.isOpen|my_color_filter}}">
+                    {% if el.tf5.isOpen == 1%}
+                        <a style='color:white' href={% url 'screener:test_view' el.name '5'%}>В импульсе</a>
+                    {% else %}
+                        <a style='color:black' href={% url 'screener:test_view' el.name '5'%}>Ожидаем</a>
+                    {% endif%}
+                </td>
+                <td class="{{el.tf15.isOpen|my_color_filter}}">
+                    {% if el.tf15.isOpen == 1%}
+                        <a style='color:white' href={% url 'screener:test_view' el.name '15'%}>В импульсе</a>
+                    {% else %}
+                        <a style='color:black' href={% url 'screener:test_view' el.name '15'%}>Ожидаем</a>
+                    {% endif%}
+                </td>
+                <td>
+                    <button class="btn btn-primary">
+                        <a style='color:white' href={% url 'screener:single_currency' el.name %}>Trading View</a>
+                    </button>
+                </td>
+            </tr>
+        {% endfor%}
+    </tbody>
+</table>
+{% endblock %}
