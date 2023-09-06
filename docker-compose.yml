@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  screener:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    image: screener_django:latest
+    container_name: screener_django
+    volumes:
+      - db/db.sqlite3:/db.sqlite3
+    env_file:
+      - .env
+    command: >
+      bash -c "./manage.py migrate && gunicorn -b 0.0.0.0:8000 soaqaz.wsgi:application"
+  nginx:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./docker/nginx/
+    container_name: screener_nginx
+    image: screener_nginx
+    depends_on:
+      - screener
+    ports:
+      - "${NGINX_EXTERNAL_PORT}:80"
