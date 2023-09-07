@@ -1,5 +1,0 @@
-django ==4.0.8
-python-binance
-pandas
-python-coinmarketcap
-plotly

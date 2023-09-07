@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d7781f90-3d6b-463e-8e2f-ae0031a7ff33" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/launch.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pipfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Pipfile.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/base/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/base/settings.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/base/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/base/wsgi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/db/db.sqlite3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/nginx/Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/nginx/nginx.conf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker/nginx/proxy_params" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/manage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/api_request.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/apps.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/binanceApi.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/clientWork.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/db_request.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/math_methods.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0002_rename_price_currency_rank.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0003_candles.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0004_alter_candles_symbol.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0005_machine.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0006_machine_start_date.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0007_alter_candles_date.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0008_candles_tf.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0009_rename_close_candles_close_rename_date_candles_date_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0010_currencytable.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0011_alter_currencytable_tf1_alter_currencytable_tf15_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0012_alter_currencytable_tf1_alter_currencytable_tf15_and_more.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0013_alter_impulses_dateend_alter_impulses_datestart.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0014_impulses_isclose.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/0015_remove_impulses_isclose_impulses_isopen.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/migrations/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/models.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/templatetags/my_color_filter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/urls.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screener/views.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/currency_changelist.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/currency_table_changelist.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/machine_changelist.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/screener/currency_table.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/screener/single_currency.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/screener/test_view.html" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2V3yj9rLs8ffkBhBl0d2PGsPweP" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "test-bratch"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\fr3st\Desktop\Screener" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d7781f90-3d6b-463e-8e2f-ae0031a7ff33" name="Changes" comment="" />
+      <created>1694079191901</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1694079191901</updated>
+    </task>
+    <servers />
+  </component>
+</project>
