@@ -1,6 +1,6 @@
 from binance.client import Client
 from binance import ThreadedWebsocketManager
-from screener.db_request import get_keys
+from .db_request import get_keys
 
 def create_client():
     """ create trader with keys and return it """

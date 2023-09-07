@@ -1,12 +1,44 @@
-from screener.api_request import create_client
-from screener.db_request import check_machine, getAllCurrency, insertCandle,insertCandles, getCandles, insertImpulse
+from .api_request import create_client
+from .db_request import check_machine, getAllCurrency, insertCandle,insertCandles, getCandles, insertImpulse, deleteAllCandles
 from datetime import datetime
 from binance.client import Client
 from threading import Thread
-from screener.math_methods import impulse_long
+from .math_methods import impulse_long
 import pandas as pd
 import time
 import os
+
+def get_start_data():
+    client = create_client()
+    list_Currency = getAllCurrency()
+
+    deleteAllCandles()
+
+    #ДОБАВИТЬ ВСЕ СТАРЫЕ СВЕЧИ В БАЗУ ДАННЫХ
+    tStart = time.time()
+    countDone = 0
+    clear = lambda: os.system('cls')
+    for currency in list_Currency:
+        print("Instrument ", currency.name)
+        print('get historical TF 1')
+        list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_1MINUTE, limit = 1000)
+        print('insert historical TF 1')
+        insertCandles(currency, 1, list_Candles)
+        print('get historical TF 5')
+        list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_5MINUTE, limit = 1000)
+        print('insert historical TF 5')
+        insertCandles(currency, 5, list_Candles)
+        print('get historical TF 15')
+        list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_15MINUTE, limit = 1000)
+        print('insert historical TF 15')
+        insertCandles(currency, 15, list_Candles)
+        clear()
+        countDone += 1
+        tCountDone = time.time()
+        eachCount = (tCountDone - tStart) / countDone
+        needTime = (len(list_Currency) - countDone) * eachCount
+        print('Need Sec - ', convertSecToMin(int(needTime)))
+        print('Done ',countDone,'/',len(list_Currency))
 
 def convertSecToMin(seconds):
     seconds = seconds % (24 * 3600)
@@ -21,33 +53,6 @@ def convertSecToMin(seconds):
 def start_machine():
     client = create_client()
     list_Currency = getAllCurrency()
-
-    # #ДОБАВИТЬ ВСЕ СТАРЫЕ СВЕЧИ В БАЗУ ДАННЫХ
-    # tStart = time.time()
-    # countDone = 0
-    # clear = lambda: os.system('cls')
-    # for currency in list_Currency:
-    #     print("Instrument ", currency.name)
-    #     print('get historical TF 1')
-    #     list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_1MINUTE, limit = 1000)
-    #     print('insert historical TF 1')
-    #     insertCandles(currency, 1, list_Candles)
-    #     print('get historical TF 5')
-    #     list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_5MINUTE, limit = 1000)
-    #     print('insert historical TF 5')
-    #     insertCandles(currency, 5, list_Candles)
-    #     print('get historical TF 15')
-    #     list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_15MINUTE, limit = 1000)
-    #     print('insert historical TF 15')
-    #     insertCandles(currency, 15, list_Candles)
-    #     clear()
-    #     countDone += 1
-    #     tCountDone = time.time()
-    #     eachCount = (tCountDone - tStart) / countDone
-    #     needTime = (len(list_Currency) - countDone) * eachCount
-    #     print('Need Sec - ', convertSecToMin(int(needTime)))
-    #     print('Done ',countDone,'/',len(list_Currency))
-
 
     print('Machine started')
 

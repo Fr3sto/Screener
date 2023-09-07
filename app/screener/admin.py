@@ -1,22 +1,37 @@
 from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
-from screener.models import Currency,BinanceKey, Machine, CurrencyTable
-from screener.clientWork import start_machine
+from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles
+from .clientWork import start_machine, get_start_data
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
-from binance import ThreadedWebsocketManager
-from datetime import datetime
 
 
+@admin.register(Candles)
+class CandlesAdmin(admin.ModelAdmin):
+    list_display = ('symbol', 'tf')
+
+    change_list_template = 'admin/candles_table_changelist.html'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [path('deleteCandles/', self.deleteCandles)]
+        return my_urls + urls
+
+    def deleteCandles(self, request):
+        Candles.objects.all().delete()
+        self.message_user(request, "Candles delete")
+        return HttpResponseRedirect("../")
 @admin.register(BinanceKey)
 class BinanceKeyAdmin(admin.ModelAdmin):
     list_display = ('api', 'secret')
 
+
+
 @admin.register(CurrencyTable)
 class CurrencyTableAdmin(admin.ModelAdmin):
     list_display = ('symbol', 'tf1','tf5','tf15')
-    change_list_template = 'currency_table_changelist.html'
+    change_list_template = 'admin/currency_table_changelist.html'
 
     def get_urls(self):
         urls = super().get_urls()
@@ -32,13 +47,17 @@ class CurrencyTableAdmin(admin.ModelAdmin):
 @admin.register(Machine)
 class CurrencyAdmin(admin.ModelAdmin):
     list_display = ('is_working','start_date')
-    change_list_template = "machine_changelist.html"
+    change_list_template = "admin/machine_changelist.html"
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [path('startStopMachine/', self.startStopMachine)]
+        my_urls = [path('startStopMachine/', self.startStopMachine), path('getStartData/', self.getStartData)]
         return my_urls + urls
-    
+
+    def getStartData(self, request):
+        get_start_data()
+        self.message_user(request, "Data has been loaded")
+        return HttpResponseRedirect("../")
     def startStopMachine(self,request):
         machine = Machine.objects.all().first()
         if machine.is_working:
@@ -58,7 +77,7 @@ class CurrencyAdmin(admin.ModelAdmin):
 @admin.register(Currency)
 class CurrencyAdmin(admin.ModelAdmin):
     list_display = ('name', 'rank')
-    change_list_template = "currency_changelist.html"
+    change_list_template = "admin/currency_changelist.html"
 
     
     isGood = True

@@ -10,6 +10,9 @@ def check_machine():
     """ return true/false if bot is working """
     return Machine.objects.all().first().is_working
 
+
+def deleteAllCandles():
+    Candles.objects.all().delete()
 def getAllCurrency():
     return Currency.objects.all()
 
