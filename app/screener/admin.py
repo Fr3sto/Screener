@@ -62,9 +62,10 @@ class CurrencyAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
     def getImpulses(self, request):
+        self.message_user(request, "Get Impulses starting. . .")
         t1 = Thread(target=get_impulses)
         t1.start()
-        self.message_user(request, "Get Impulses starting. . .")
+
         t1.join()
         self.message_user(request, "Get Impulses done. . .")
 
