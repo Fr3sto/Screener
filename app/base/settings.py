@@ -29,7 +29,7 @@ DEBUG = True
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337"]
 
-ALLOWED_HOSTS = ['45.12.75.165', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['45.12.75.165', '127.0.0.1', 'localhost', 'impulsescreener.com']
 
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://impulsescreener.com", "https://www.impulsescreener.com", "http://impulsescreener.com"]
 
