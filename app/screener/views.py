@@ -14,7 +14,7 @@ def index(request):
         imp1 = Impulses.objects.get(symbol = curr, tf = 1, type = 'L')
         imp5 = Impulses.objects.get(symbol = curr, tf = 5, type = 'L')
         imp15 = Impulses.objects.get(symbol = curr, tf = 15, type = 'L')
-        result.append({'name' : curr.name, 'tf1' : imp1, 'tf5': imp5})#, 'tf15':imp15})
+        result.append({'name' : curr.name, 'tf1' : imp1, 'tf5': imp5, 'tf15':imp15})
     return render(request, 'screener/currency_table.html', {'result':result})
 
 def single_currency(request, name):
