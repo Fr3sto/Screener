@@ -10,7 +10,7 @@ def atr(df, period = 10):
 
     return df.drop(columns = ['Max','Min'])
 
-def impulse_long(df,tf, pulse_percent = 0.3):
+def impulse_long(df_HighTF, pulse_percent = 0.2):
 
     impulses = []
     result = []
@@ -20,28 +20,8 @@ def impulse_long(df,tf, pulse_percent = 0.3):
     percent_not_change = 0.3
 
 
-    ohlc_dict = {                                                                                                             
-    'Open': 'first',                                                                                                    
-    'High': 'max',                                                                                                       
-    'Low': 'min',                                                                                                        
-    'Close': 'last',                                                                                                    
-    'Volume': 'sum',
-    }
-
-    new_tf = ""
-    if tf == 1:
-        new_tf = "5min"
-    elif tf == 5:
-        new_tf = '15min'
-    elif tf == 15:
-        new_tf = '1H'
-
-    # ЗДЕСЬ МЫ ПОЛУЧАЕМ НОВЫЙ СТАРШИЙ ТФ И СЧИТАЕМ АТР
-    df2 = df.resample(new_tf, closed='left', label='left', on='Date').apply(ohlc_dict)
-    df2 = atr(df2, period = 50)
-    df2['Date'] = df2.index
-    df2 = df2.dropna()
-    list = df2.values.tolist()
+    df_HighTF = atr(df_HighTF, period = 300)
+    list = df_HighTF.values.tolist()
 
     isUp = False
     min = 0
@@ -69,7 +49,7 @@ def impulse_long(df,tf, pulse_percent = 0.3):
                     impulse.extend([1] * len(rollback))
                     rollback = []
                 priceEnd = list[i][3]
-                dateEnd = df2.index[i]._repr_base
+                dateEnd = list[i][5]
             else:
                 count_after_trend_bar += 1
                 curr_diff = max - list[i][3]
@@ -77,7 +57,7 @@ def impulse_long(df,tf, pulse_percent = 0.3):
                 if(curr_diff > height * percent_return):
                     isUp = False
 
-                    if(height > pulse_percent * list[i][5] and count_trend_bar > 1 and list[i][5] != 0):
+                    if(height > pulse_percent * list[i][6] and count_trend_bar > 1 and list[i][6] != 0):
                         impulses.append([priceStart, dateStart, priceEnd, dateEnd, i, 0])
                         result.extend(impulse)
                         result.extend([0] * len(rollback))
@@ -95,7 +75,7 @@ def impulse_long(df,tf, pulse_percent = 0.3):
                     if(count_after_trend_bar > count_stop_bar):
                         isUp = False
 
-                        if(height > pulse_percent * list[i][5] and count_trend_bar > 1 and list[i][5] != 0):
+                        if(height > pulse_percent * list[i][6] and count_trend_bar > 1 and list[i][6] != 0):
                             impulses.append([priceStart, dateStart, priceEnd, dateEnd,i,0])
                             result.extend(impulse)
                             result.extend([0] * len(rollback))
@@ -113,14 +93,14 @@ def impulse_long(df,tf, pulse_percent = 0.3):
                 impulse = [1]
                 rollback = []
                 priceStart = list[i][0]
-                dateStart = df2.index[i]._repr_base
+                dateStart = list[i][5]
             else:
                 result.append(0)
 
-    result.extend([0] * (df2.shape[0] - len(result)))
-    df2['Impulse Long'] = result
+    result.extend([0] * (df_HighTF.shape[0] - len(result)))
+    df_HighTF['Impulse Long'] = result
 
-    res_df = df2[df2['Impulse Long'] == 1]
+    res_df = df_HighTF[df_HighTF['Impulse Long'] == 1]
     if res_df.empty:
         return [0, '2020-01-01 00:00:00', 0,'2020-01-01 00:00:00', 0, 0]
     else:
@@ -135,25 +115,26 @@ def impulse_long(df,tf, pulse_percent = 0.3):
     
 def getChartWithImpulse(df, impulse, tf):
     fig = px.line(df, x = 'Date', y = 'Close')
-    dateStartStr = impulse[1]
-    dateStart = datetime.strptime(dateStartStr, '%Y-%m-%d %H:%M:%S')
 
-    dateEndStr = impulse[3]
+    if(impulse[0] != 0):
+        dateStart = impulse[1]
 
-    add_min = 0
-    if tf == 1:
-        add_min = 5
-    elif tf == 5:
-        add_min = 15
-    elif tf == 15:
-        add_min = 60
+        if (dateStart > df.iloc[0]['Date']):
+            add_min = 0
+            if tf == 1:
+                add_min = 5
+            elif tf == 5:
+                add_min = 15
+            elif tf == 15:
+                add_min = 60
 
-    dateEnd = datetime.strptime(dateEndStr, '%Y-%m-%d %H:%M:%S') + timedelta(minutes = add_min)
+            dateEnd = impulse[3] + timedelta(minutes=add_min)
 
-    fig.add_shape(type="rect",
-            x0=dateStart, y0=impulse[0], x1=dateEnd, y1=impulse[2],
-            line=dict(color="LightGreen")
-    )
+            fig.add_shape(type="rect",
+                          x0=dateStart, y0=impulse[0], x1=dateEnd, y1=impulse[2],
+                          line=dict(color="LightGreen")
+                          )
+
 
 
     chart = fig.to_html()

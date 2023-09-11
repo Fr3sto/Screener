@@ -17,7 +17,7 @@ class Candles(models.Model):
     Low = models.FloatField()
     Close = models.FloatField()
     Volume = models.FloatField()
-    Date = models.BigIntegerField()
+    Date = models.DateTimeField()
 
 class Machine(models.Model):
     is_working = models.BooleanField(default=False)
@@ -34,8 +34,8 @@ class Impulses(models.Model):
     type = models.CharField(max_length=5)
     tf = models.IntegerField()
     priceStart = models.FloatField()
-    dateStart = models.CharField(max_length=20)
+    dateStart = models.DateTimeField()
     priceEnd = models.FloatField()
-    dateEnd = models.CharField(max_length=20)
+    dateEnd = models.DateTimeField()
     isOpen = models.IntegerField(default = 0)
 

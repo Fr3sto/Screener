@@ -1,5 +1,5 @@
 from .api_request import create_client
-from .db_request import check_machine, getAllCurrency, insertCandle,insertCandles, getCandles, insertImpulse, deleteAllCandles
+from .db_request import check_machine, getAllCurrency, insertCandle,insertCandles, getCandles, insertImpulse, deleteAllCandles, getCandlesDF
 from datetime import datetime
 from binance.client import Client
 from threading import Thread
@@ -7,6 +7,24 @@ from .math_methods import impulse_long
 import pandas as pd
 import time
 import os
+
+
+def get_impulses():
+    list_Currency = getAllCurrency()
+    for currency in list_Currency:
+        df_Imp = getCandlesDF(currency.name, 5)
+        impulse = impulse_long(df_Imp)
+        insertImpulse(currency, 'L', 1, impulse)
+
+        df_Imp = getCandlesDF(currency.name, 15)
+        impulse = impulse_long(df_Imp)
+        insertImpulse(currency, 'L', 5, impulse)
+
+        df_Imp = getCandlesDF(currency.name, 60)
+        impulse = impulse_long(df_Imp)
+        insertImpulse(currency, 'L', 15, impulse)
+
+
 
 def get_start_data(self, request):
     client = create_client()
@@ -32,6 +50,10 @@ def get_start_data(self, request):
         list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_15MINUTE, limit = 1000)
         print('insert historical TF 15')
         insertCandles(currency, 15, list_Candles)
+        print('get historical TF 60')
+        list_Candles = client.get_klines(symbol=currency.name, interval=Client.KLINE_INTERVAL_1HOUR, limit=1000)
+        print('insert historical TF 60')
+        insertCandles(currency, 60, list_Candles)
         clear()
         countDone += 1
         tCountDone = time.time()
@@ -90,12 +112,8 @@ def get1MinKline(client, list_Currency):
     print('get Impulse Long 1')
     
     for currency in list_Currency:
-        Candles = getCandles(currency, 1).values()
-        df_Candles = pd.DataFrame(Candles)
-        df_Candles = df_Candles.drop(['id', 'symbol_id','tf'], axis = 1)
-        df_Candles['Date'] = [datetime.fromtimestamp(int(str(x)[0:10])) for x in df_Candles['Date']]
-        df_Candles = df_Candles.sort_values(by=['Date'])
-        impulse = impulse_long(df_Candles, 1)
+        df_Imp = getCandlesDF(currency.name, 5)
+        impulse = impulse_long(df_Imp)
         insertImpulse(currency, 'L', 1, impulse)
         #print('Symbol - ',currency.name,'Date Impulse - ', date_long)
     print('got Impulse Long 1')
@@ -110,12 +128,8 @@ def get5MinKline(client, list_Currency):
     print('get Impulse Long 5')
     
     for currency in list_Currency:
-        Candles = getCandles(currency, 5).values()
-        df_Candles = pd.DataFrame(Candles)
-        df_Candles = df_Candles.drop(['id', 'symbol_id','tf'], axis = 1)
-        df_Candles['Date'] = [datetime.fromtimestamp(int(str(x)[0:10])) for x in df_Candles['Date']]
-        df_Candles = df_Candles.sort_values(by=['Date'])
-        impulse = impulse_long(df_Candles, 5)
+        df_Imp = getCandlesDF(currency.name, 15)
+        impulse = impulse_long(df_Imp)
         insertImpulse(currency, 'L', 5, impulse)
     print('got Impulse Long 5')
     
@@ -131,11 +145,7 @@ def get15MinKline(client, list_Currency):
     print('get Impulse Long 15')
     
     for currency in list_Currency:
-        Candles = getCandles(currency, 15).values()
-        df_Candles = pd.DataFrame(Candles)
-        df_Candles = df_Candles.drop(['id', 'symbol_id','tf'], axis = 1)
-        df_Candles['Date'] = [datetime.fromtimestamp(int(str(x)[0:10])) for x in df_Candles['Date']]
-        df_Candles = df_Candles.sort_values(by=['Date'])
-        impulse = impulse_long(df_Candles, 15)
+        df_Imp = getCandlesDF(currency.name, 60)
+        impulse = impulse_long(df_Imp)
         insertImpulse(currency, 'L', 15, impulse)
     print('got Impulse Long 15')

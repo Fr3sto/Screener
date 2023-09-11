@@ -9,6 +9,13 @@
     </div>
     <br />
     <div>
+        <form action="getImpulses/" method="POST">
+            {% csrf_token %}
+                <button type="submit">Get Impulses</button>
+        </form>
+    </div>
+    <br />
+    <div>
         <form action="startStopMachine/" method="POST">
             {% csrf_token %}
                 <button type="submit">Start Stop Machine</button>

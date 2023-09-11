@@ -1,6 +1,7 @@
 from .models import BinanceKey, Machine, Currency,Candles, CurrencyTable, Impulses
 from datetime import datetime
 import pandas as pd
+import pytz
 
 def get_keys():
     binance_keys = BinanceKey.objects.all().first()
@@ -25,7 +26,6 @@ def getCandlesDF(name, tf):
     candles = Candles.objects.filter(symbol = currency, tf = tf).values()
     df_Candles = pd.DataFrame(candles)
     df_Candles = df_Candles.drop(['id', 'symbol_id','tf'], axis = 1)
-    df_Candles['Date'] = [datetime.fromtimestamp(int(str(x)[0:10])) for x in df_Candles['Date']]
     df_Candles = df_Candles.sort_values(by=['Date'])
     return df_Candles
 
@@ -54,13 +54,16 @@ def insertDate(currency, value, tf):
 
 def insertCandle(symbol, tf, candle):
     currency = Currency.objects.get(name = symbol)
-    candle = Candles.objects.create(symbol = currency,tf = tf, Date = candle[0], Open = candle[1], High = candle[2], Low = candle[3], Close = candle[4], Volume = candle[5])
+    date = datetime.fromtimestamp(int(str(candle[0])[0:10]))
+    candle = Candles.objects.create(symbol = currency,tf = tf, Date = date, Open = candle[1], High = candle[2], Low = candle[3], Close = candle[4], Volume = candle[5])
     candle.save()
+
 
 def insertCandles(currency, tf, listCandles):
     result_candle = []
     for candle in listCandles:
-        result_candle.append(Candles(symbol = currency, tf = tf, Date = candle[0], Open = candle[1], High = candle[2], Low = candle[3], Close = candle[4], Volume = candle[5]))
+        date = datetime.fromtimestamp(int(str(candle[0])[0:10]))
+        result_candle.append(Candles(symbol = currency, tf = tf, Date = date, Open = candle[1], High = candle[2], Low = candle[3], Close = candle[4], Volume = candle[5]))
     
     Candles.objects.bulk_create(result_candle)
         # if not Candles.objects.filter(symbol = currency, tf = tf, Date = candle[0]).exists():

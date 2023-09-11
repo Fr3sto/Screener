@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
 from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles
-from .clientWork import start_machine, get_start_data
+from .clientWork import start_machine, get_start_data, get_impulses
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
 from threading import Thread
@@ -52,7 +52,7 @@ class CurrencyAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [path('startStopMachine/', self.startStopMachine), path('getStartData/', self.getStartData)]
+        my_urls = [path('startStopMachine/', self.startStopMachine), path('getStartData/', self.getStartData), path('getImpulses/', self.getImpulses)]
         return my_urls + urls
 
     def getStartData(self, request):
@@ -60,6 +60,17 @@ class CurrencyAdmin(admin.ModelAdmin):
         t1.start()
 
         return HttpResponseRedirect("../")
+
+    def getImpulses(self, request):
+        t1 = Thread(target=get_impulses)
+        t1.start()
+        self.message_user(request, "Get Impulses starting. . .")
+        t1.join()
+        self.message_user(request, "Get Impulses done. . .")
+
+
+        return HttpResponseRedirect("../")
+
     def startStopMachine(self,request):
         machine = Machine.objects.all().first()
         if machine.is_working:
