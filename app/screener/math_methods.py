@@ -10,7 +10,7 @@ def atr(df, period = 10):
 
     return df.drop(columns = ['Max','Min'])
 
-def impulse_long(df,tf, pulse_percent = 0.5):
+def impulse_long(df,tf, pulse_percent = 0.3):
 
     impulses = []
     result = []

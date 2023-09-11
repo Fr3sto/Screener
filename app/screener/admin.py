@@ -5,6 +5,7 @@ from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles
 from .clientWork import start_machine, get_start_data
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
+from threading import Thread
 
 
 @admin.register(Candles)
@@ -55,8 +56,9 @@ class CurrencyAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def getStartData(self, request):
-        get_start_data()
-        self.message_user(request, "Data has been loaded")
+        t1 = Thread(target=get_start_data, args=(self, request))
+        t1.start()
+
         return HttpResponseRedirect("../")
     def startStopMachine(self,request):
         machine = Machine.objects.all().first()

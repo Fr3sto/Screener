@@ -5,7 +5,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: .
-    command: bash -c "python manage.py collectstatic --no-input --clear && gunicorn base.wsgi:application --bind 0.0.0.0:8000 "
+    command: bash -c "gunicorn base.wsgi:application --bind 0.0.0.0:8000  --timeout 600 && python manage.py collectstatic --no-input --clear"
     volumes:
       - static_volume:/usr/src/app/staticfiles
     expose:
@@ -15,7 +15,7 @@ services:
     volumes:
       - static_volume:/usr/src/app/staticfiles
     ports:
-      - 1337:80
+      - 80:80
     depends_on:
       - web
 

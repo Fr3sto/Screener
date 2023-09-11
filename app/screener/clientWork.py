@@ -8,7 +8,7 @@ import pandas as pd
 import time
 import os
 
-def get_start_data():
+def get_start_data(self, request):
     client = create_client()
     list_Currency = getAllCurrency()
 
@@ -39,6 +39,7 @@ def get_start_data():
         needTime = (len(list_Currency) - countDone) * eachCount
         print('Need Sec - ', convertSecToMin(int(needTime)))
         print('Done ',countDone,'/',len(list_Currency))
+        self.message_user(request, 'Done ',countDone,'/',len(list_Currency))
 
 def convertSecToMin(seconds):
     seconds = seconds % (24 * 3600)
