@@ -8,3 +8,12 @@ def my_color_filter(isOpen):
     else:
         td_class = ''
     return td_class
+
+@register.filter()
+def filter_count_in_impulse(count):
+    if count >= 20:
+        td_class = 'bg-success'
+    else:
+        td_class = ''
+    return td_class
+

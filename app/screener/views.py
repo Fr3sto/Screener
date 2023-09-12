@@ -44,7 +44,7 @@ def single_currency(request, name):
 def test_view(request,name, tf):
 
     df = getCandlesDF(name, tf)
-
+    print(df)
     if tf == 1:
         df_Imp = getCandlesDF(name, 5)
         print(df_Imp)

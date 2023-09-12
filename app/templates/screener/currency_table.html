@@ -34,7 +34,13 @@
                         <a style='color:black' href={% url 'screener:test_view' el.name '1'%}>Ожидаем</a>
                     {% endif%}
                 </td>
-                <td>{{el.countC1}}</td>
+                <td class="{{el.countC1|filter_count_in_impulse}}">
+                    {% if el.countC1 >= 10 %}
+                        <p style="color:white">{{el.countC1}}</p>
+                    {% else %}
+                        <p style="color:black">{{el.countC1}}</p>
+                    {%endif%}
+                </td>
                 <td class="{{el.tf5.isOpen|my_color_filter}}">
                     {% if el.tf5.isOpen == 1%}
                         <a style='color:white' href={% url 'screener:test_view' el.name '5'%}>В импульсе</a>
@@ -42,7 +48,13 @@
                         <a style='color:black' href={% url 'screener:test_view' el.name '5'%}>Ожидаем</a>
                     {% endif%}
                 </td>
-                <td>{{el.countC5}}</td>
+                <td class="{{el.countC5|filter_count_in_impulse}}">
+                    {% if el.countC5 >= 10 %}
+                        <p style="color:white">{{el.countC5}}</p>
+                    {% else %}
+                        <p style="color:black">{{el.countC5}}</p>
+                    {%endif%}
+                </td>
                 <td class="{{el.tf15.isOpen|my_color_filter}}">
                     {% if el.tf15.isOpen == 1%}
                         <a style='color:white' href={% url 'screener:test_view' el.name '15'%}>В импульсе</a>
@@ -50,7 +62,13 @@
                         <a style='color:black' href={% url 'screener:test_view' el.name '15'%}>Ожидаем</a>
                     {% endif%}
                 </td>
-                <td>{{el.countC15}}</td>
+                <td class="{{el.countC15|filter_count_in_impulse}}">
+                    {% if el.countC15 >= 10 %}
+                        <p style="color:white">{{el.countC15}}</p>
+                    {% else %}
+                        <p style="color:black">{{el.countC15}}</p>
+                    {%endif%}
+                </td>
                 <td>
                     <button class="btn btn-primary">
                         <a style='color:white' href={% url 'screener:single_currency' el.name %}>Trading View</a>
