@@ -4,14 +4,22 @@
 
 {% block content%}
 
-<table class="table mt-5 table-bordered table-striped table-hover">
+<table class="table mt-5 table-bordered table-striped table-hover table-responsive">
     <thead class="table-dark">
         <tr>
-            <th>Name</th>
-            <th>TF 1 min</th>
-            <th>TF 5 min</th>
-            <th>TF 15 min</th>
+            <th  rowspan="2">Name</th>
+            <th colspan="2">TF 1 min</th>
+            <th colspan="2">TF 5 min</th>
+            <th colspan="2">TF 15 min</th>
             <th width='10%'></th>
+        </tr>
+        <tr>
+            <th>Have_Impulse</th>
+            <th>Count_in_impulse</th>
+            <th>Have_Impulse</th>
+            <th>Count_in_impulse</th>
+            <th>Have_Impulse</th>
+            <th>Count_in_impulse</th>
         </tr>
     </thead>
     <tbody>
@@ -26,6 +34,7 @@
                         <a style='color:black' href={% url 'screener:test_view' el.name '1'%}>Ожидаем</a>
                     {% endif%}
                 </td>
+                <td>{{el.countC1}}</td>
                 <td class="{{el.tf5.isOpen|my_color_filter}}">
                     {% if el.tf5.isOpen == 1%}
                         <a style='color:white' href={% url 'screener:test_view' el.name '5'%}>В импульсе</a>
@@ -33,6 +42,7 @@
                         <a style='color:black' href={% url 'screener:test_view' el.name '5'%}>Ожидаем</a>
                     {% endif%}
                 </td>
+                <td>{{el.countC5}}</td>
                 <td class="{{el.tf15.isOpen|my_color_filter}}">
                     {% if el.tf15.isOpen == 1%}
                         <a style='color:white' href={% url 'screener:test_view' el.name '15'%}>В импульсе</a>
@@ -40,6 +50,7 @@
                         <a style='color:black' href={% url 'screener:test_view' el.name '15'%}>Ожидаем</a>
                     {% endif%}
                 </td>
+                <td>{{el.countC15}}</td>
                 <td>
                     <button class="btn btn-primary">
                         <a style='color:white' href={% url 'screener:single_currency' el.name %}>Trading View</a>
