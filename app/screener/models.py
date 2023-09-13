@@ -39,3 +39,10 @@ class Impulses(models.Model):
     dateEnd = models.DateTimeField()
     isOpen = models.IntegerField(default = 0)
 
+class BigOrders(models.Model):
+    symbol = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    type = models.CharField(max_length=5)
+    date = models.DateTimeField(default = timezone.now)
+    price = models.FloatField()
+    quantity = models.FloatField()
+

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
 from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles
-from .clientWork import start_machine, get_start_data, get_impulses
+from .clientWork import start_machine, get_start_data, get_impulses, startStreamBook
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
 from threading import Thread
@@ -52,9 +52,17 @@ class CurrencyAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [path('startStopMachine/', self.startStopMachine), path('getStartData/', self.getStartData), path('getImpulses/', self.getImpulses)]
+        my_urls = [path('startStopMachine/', self.startStopMachine),
+                   path('getStartData/', self.getStartData),
+                   path('getImpulses/', self.getImpulses),
+                   path('startStreamBook/', self.startStreamBook)]
         return my_urls + urls
 
+    def startStreamBook(self, request):
+        t1 = Thread(target=startStreamBook)
+        t1.start()
+
+        return HttpResponseRedirect("../")
     def getStartData(self, request):
         t1 = Thread(target=get_start_data, args=(self, request))
         t1.start()
@@ -62,12 +70,9 @@ class CurrencyAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
     def getImpulses(self, request):
-        self.message_user(request, "Get Impulses starting. . .")
-        t1 = Thread(target=get_impulses)
-        t1.start()
-
-        t1.join()
-        self.message_user(request, "Get Impulses done. . .")
+        thread = Thread(target=get_impulses)
+        thread.start()
+        thread.join()
 
 
         return HttpResponseRedirect("../")
@@ -82,8 +87,9 @@ class CurrencyAdmin(admin.ModelAdmin):
 
         if machine.is_working:
             self.message_user(request, "Bot is started")
-            start_machine()
-            
+
+            thread = Thread(target=start_machine)
+            thread.start()
         else:
             self.message_user(request, "Bot is stopped")
         return HttpResponseRedirect("../")

@@ -8,18 +8,21 @@
     <thead class="table-dark">
         <tr>
             <th  rowspan="2">Name</th>
-            <th colspan="2">TF 1 min</th>
-            <th colspan="2">TF 5 min</th>
-            <th colspan="2">TF 15 min</th>
+            <th colspan="3">TF 1 min</th>
+            <th colspan="3">TF 5 min</th>
+            <th colspan="3">TF 15 min</th>
             <th width='10%'></th>
         </tr>
         <tr>
             <th>Have_Impulse</th>
             <th>Count_in_impulse</th>
+            <th>Is_Trend_Up</th>
             <th>Have_Impulse</th>
             <th>Count_in_impulse</th>
+            <th>Is_Trend_Up</th>
             <th>Have_Impulse</th>
             <th>Count_in_impulse</th>
+            <th>Is_Trend_Up</th>
         </tr>
     </thead>
     <tbody>
@@ -41,6 +44,9 @@
                         <p style="color:black">{{el.countC1}}</p>
                     {%endif%}
                 </td>
+                <td>
+                    Up
+                </td>
                 <td class="{{el.tf5.isOpen|my_color_filter}}">
                     {% if el.tf5.isOpen == 1%}
                         <a style='color:white' href={% url 'screener:test_view' el.name '5'%}>В импульсе</a>
@@ -54,6 +60,9 @@
                     {% else %}
                         <p style="color:black">{{el.countC5}}</p>
                     {%endif%}
+                </td>
+                <td>
+                    Up
                 </td>
                 <td class="{{el.tf15.isOpen|my_color_filter}}">
                     {% if el.tf15.isOpen == 1%}

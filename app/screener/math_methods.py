@@ -1,6 +1,8 @@
 
-from datetime import datetime, timedelta
+import datetime
 import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
 
 def atr(df, period = 10):
     df['Max'] =  df['High'].rolling(period).max().shift().fillna(0)
@@ -32,13 +34,13 @@ def impulse_long(df_HighTF, pulse_percent = 0.2):
     count_after_trend_bar = 0
 
     priceStart = 0
-    dateStart = datetime.now()
+    dateStart = datetime.datetime.now()
     priceEnd = 0
-    dateEnd = datetime.now()
+    dateEnd = datetime.datetime.now()
     iEnd = 0
 
     for i, x in enumerate(list):
-        if(isUp):
+        if isUp:
             if list[i][3] > max:
                 max = list[i][3]
                 height = max - min
@@ -102,7 +104,7 @@ def impulse_long(df_HighTF, pulse_percent = 0.2):
 
     res_df = df_HighTF[df_HighTF['Impulse Long'] == 1]
     if res_df.empty:
-        return [0, '2020-01-01 00:00:00', 0,'2020-01-01 00:00:00', 0, 0]
+        return [0, datetime.datetime.now(), 0,datetime.datetime.now(), 0, 0]
     else:
         impulses[-1][5] = True
         minPulse = float(impulses[-1][0])
@@ -112,11 +114,15 @@ def impulse_long(df_HighTF, pulse_percent = 0.2):
                 impulses[-1][5] = False
                 return impulses[-1]
         return impulses[-1]
-    
-def getChartWithImpulse(df, impulse, tf):
-    fig = px.line(df, x = 'Date', y = 'Close')
+def getChartWithImpulse(df, impulse,bigOrders, tf):
+    #fig = px.line(df, x = 'Date', y = 'Close')
 
-    if(impulse[0] != 0):
+    fig = go.Figure(data=[go.Candlestick(x=df['Date'],
+                                         open=df['Open'], high=df['High'],
+                                         low=df['Low'], close=df['Close'])])
+
+    fig.update_layout(xaxis_rangeslider_visible=False)
+    if impulse[0] != 0:
         dateStart = impulse[1]
 
         if (dateStart > df.iloc[0]['Date']):
@@ -128,13 +134,23 @@ def getChartWithImpulse(df, impulse, tf):
             elif tf == 15:
                 add_min = 60
 
-            dateEnd = impulse[3] + timedelta(minutes=add_min)
+            dateEnd = impulse[3] + datetime.timedelta(minutes=add_min)
 
             fig.add_shape(type="rect",
                           x0=dateStart, y0=impulse[0], x1=dateEnd, y1=impulse[2],
                           line=dict(color="LightGreen")
                           )
 
+    if len(bigOrders) != 0:
+        # dfOrders = pd.DataFrame([vars(s) for s in bigOrders])
+        #
+        # dfOrders['date'] = dfOrders['date'].values.astype('<M8[m]')
+        #
+        # obj = px.scatter(dfOrders, x = 'date', y = 'price')
+        x = [x.date for x in bigOrders]
+        y = [x.price for x in bigOrders]
+
+        fig.add_scatter(x = x, y = y, text = ['Quantity - ' + str(q.quantity) for q in bigOrders], mode='markers', marker=dict(size=10, color="Green"))
 
 
     chart = fig.to_html()
