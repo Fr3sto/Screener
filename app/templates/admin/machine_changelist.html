@@ -16,6 +16,13 @@
     </div>
     <br />
     <div>
+        <form action="startStreamBook/" method="POST">
+            {% csrf_token %}
+                <button type="submit">StartStreamBook</button>
+        </form>
+    </div>
+    <br />
+    <div>
         <form action="startStopMachine/" method="POST">
             {% csrf_token %}
                 <button type="submit">Start Stop Machine</button>
