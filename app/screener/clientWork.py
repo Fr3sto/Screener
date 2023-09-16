@@ -101,14 +101,14 @@ def handle_depth_cache(depth_cache):
     try:
         top_bids = np.array(depth_cache.get_bids()[:30])  # Top 30 bids
         aver_bid = top_bids[top_bids[:, 1].argsort()][15][1]  # Sort and aver bids
-        max_bids = top_bids[top_bids[:, 1] > aver_bid * 5]  # Bids more then aver * 5
+        max_bids = top_bids[top_bids[:, 1] > aver_bid * 10]  # Bids more then aver * 5
         if max_bids.size != 0:
             if good_orders[symbol]:
                 keys = np.fromiter(good_orders[symbol].keys(), dtype=float)
                 diff = np.setdiff1d(keys, max_bids[0, :])
 
                 for el in diff:
-                    if good_orders[symbol][el]['countSec'] > 30:
+                    if good_orders[symbol][el]['countSec'] > 60:
                         print(
                             f'Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
                         ths = Thread(target= insertOrder, args=(symbol, "L", good_orders[symbol][el]["dateStart"], good_orders[symbol][el]["dateEnd"], el, good_orders[symbol][el]["quantity"],good_orders[symbol][el]["pow"]))
