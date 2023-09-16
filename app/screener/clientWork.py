@@ -48,6 +48,16 @@ def get_impulses():
         df_Imp = getCandlesDF(currency, 60)
         impulse = impulse_long(df_Imp)
         insertImpulse(currency, 'L', 15, impulse)
+
+        df_Imp = getCandlesDF(currency, 120)
+        impulse = impulse_long(df_Imp)
+        insertImpulse(currency, 'L', 30, impulse)
+
+        df_Imp = getCandlesDF(currency, 240)
+        impulse = impulse_long(df_Imp)
+        insertImpulse(currency, 'L', 60, impulse)
+
+
     print("Got Impulses")
 
 def divide_chunks(l, n):
@@ -79,9 +89,21 @@ def get_start_data(self, request):
         threads.append(t15)
         t15.start()
 
+        t30 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_30MINUTE, 30, 1000))
+        threads.append(t30)
+        t30.start()
+
         t60 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_1HOUR,60, 1000))
         threads.append(t60)
         t60.start()
+
+        t120 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_2HOUR, 120, 1000))
+        threads.append(t120)
+        t120.start()
+
+        t240 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_4HOUR, 240, 1000))
+        threads.append(t240)
+        t240.start()
 
     for index, thread in enumerate(threads):
         thread.join()
@@ -152,6 +174,7 @@ def start_machine():
     while True:
         if datetime.now().minute != last_minute:
             last_minute = datetime.now().minute
+            last_hour = datetime.now().hour
             print("Get Candles")
             result = dict()
             #print("Get 1Min")
@@ -169,10 +192,23 @@ def start_machine():
                     t15 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_15MINUTE ,15, 2, True))
                     threads.append(t15)
                     t15.start()
+                if last_minute % 30 == 0:
+                    #print("Get 15Min")
+                    t30 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_30MINUTE ,30, 2, True))
+                    threads.append(t30)
+                    t30.start()
                 if last_minute == 0:
                     t60 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_1HOUR, 60, 2, True))
                     threads.append(t60)
                     t60.start()
+                if last_minute == 0 and last_hour % 2 == 0:
+                    t120 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_2HOUR, 120, 2, True))
+                    threads.append(t120)
+                    t120.start()
+                if last_minute == 0 and last_hour % 4 == 0:
+                    t240 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_4HOUR, 240, 2, True))
+                    threads.append(t240)
+                    t240.start()
 
             for index, thread in enumerate(threads):
                 thread.join()

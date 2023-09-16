@@ -1,4 +1,4 @@
-from .models import BinanceKey, Currency,Candles, CurrencyTable, Impulses, BigOrders
+from .models import BinanceKey, Currency,Candles, Impulses, BigOrders
 from datetime import datetime
 import pandas as pd
 import pytz
@@ -45,16 +45,6 @@ def insertImpulse(currency, type, tf, list):
          impulse.dateEnd = list[3]
          impulse.isOpen = list[5]
          impulse.save()
-
-def insertDate(currency, value, tf):
-        curr_table = CurrencyTable.objects.get(symbol = currency)
-        if tf == 1:
-            curr_table.tf1 = value
-        elif tf == 5:
-            curr_table.tf5 = value
-        elif tf == 15:
-            curr_table.tf15 = value
-        curr_table.save()
 
 def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
     try:

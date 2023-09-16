@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
-from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles, Impulses, BigOrders
+from .models import Currency,BinanceKey, Machine, Candles, Impulses, BigOrders
 from .clientWork import start_machine, get_start_data, get_impulses, startStreamBook, deleteIncorrectCurrencies
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
@@ -28,22 +28,6 @@ class BinanceKeyAdmin(admin.ModelAdmin):
     list_display = ('api', 'secret')
 
 
-
-@admin.register(CurrencyTable)
-class CurrencyTableAdmin(admin.ModelAdmin):
-    list_display = ('symbol', 'tf1','tf5','tf15')
-    change_list_template = 'admin/currency_table_changelist.html'
-
-    def get_urls(self):
-        urls = super().get_urls()
-        my_urls = [path('get_currency_from_db/', self.getCurrencyFromDB)]
-        return my_urls + urls
-    
-    def getCurrencyFromDB(self,request):
-        currency_list = Currency.objects.all()
-        for currency in currency_list:
-            CurrencyTable.objects.create(symbol = currency, tf1 = 0, tf5 = 0, tf15 = 0)
-        return HttpResponseRedirect("../")
 
 @admin.register(Machine)
 class CurrencyAdmin(admin.ModelAdmin):
@@ -105,7 +89,6 @@ class CurrencyAdmin(admin.ModelAdmin):
 
     def getCurrency(self, request):
         try:
-            CurrencyTable.objects.all().delete()
             Candles.objects.all().delete()
             Impulses.objects.all().delete()
             BigOrders.objects.all().delete()

@@ -23,12 +23,6 @@ class Machine(models.Model):
     is_working = models.BooleanField(default=False)
     start_date = models.DateField()
 
-class CurrencyTable(models.Model):
-    symbol = models.ForeignKey(Currency, on_delete=models.CASCADE)
-    tf1 = models.CharField(max_length=50)
-    tf5 = models.CharField(max_length=50)
-    tf15 = models.CharField(max_length=50)
-
 class Impulses(models.Model):
     symbol = models.ForeignKey(Currency, on_delete=models.CASCADE)
     type = models.CharField(max_length=5)
@@ -46,5 +40,5 @@ class BigOrders(models.Model):
     dateEnd = models.DateTimeField()
     price = models.FloatField()
     quantity = models.FloatField()
-    pow = models.FloatField()
+    pow = models.FloatField(default = 0)
 

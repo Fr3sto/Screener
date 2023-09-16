@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 
-def atr(df, period = 10):
+def atr(df, period):
     df['Max'] =  df['High'].rolling(period).max().shift().fillna(0)
     df['Min'] = df['Low'].rolling(period).min().shift().fillna(0)
 
@@ -60,6 +60,7 @@ def impulse_long(df_HighTF, pulse_percent = 0.2):
                     isUp = False
 
                     if(height > pulse_percent * list[i][6] and count_trend_bar > 1 and list[i][6] != 0):
+                        print(f"Date - {dateEnd}. ATR - {list[i][6]}")
                         impulses.append([priceStart, dateStart, priceEnd, dateEnd, i, 0])
                         result.extend(impulse)
                         result.extend([0] * len(rollback))
@@ -122,8 +123,8 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
                                          low=df['Low'], close=df['Close'])])
 
     fig.update_layout(xaxis_rangeslider_visible=False)
-    if impulse[0] != 0:
-        dateStart = impulse[1]
+    if impulse.priceStart != 0:
+        dateStart = impulse.dateStart
 
         if (dateStart > df.iloc[0]['Date']):
             add_min = 0
@@ -133,11 +134,20 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
                 add_min = 15
             elif tf == 15:
                 add_min = 60
+            elif tf == 30:
+                add_min = 120
+            elif tf == 60:
+                add_min = 240
 
-            dateEnd = impulse[3] + datetime.timedelta(minutes=add_min)
+            dateEnd = impulse.dateEnd + datetime.timedelta(minutes=add_min)
+
+            indexEnd = df.index[df['Date'] == dateEnd]
+            indexStart = df.index[df['Date'] == dateStart]
+
+            maxPrice = df.loc[indexStart[0]:indexEnd[0], 'High'].max()
 
             fig.add_shape(type="rect",
-                          x0=dateStart, y0=impulse[0], x1=dateEnd, y1=impulse[2],
+                          x0=dateStart, y0=impulse.priceStart, x1=dateEnd, y1=maxPrice,
                           line=dict(color="LightGreen")
                           )
 

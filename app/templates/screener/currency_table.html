@@ -8,76 +8,40 @@
     <thead class="table-dark">
         <tr>
             <th  rowspan="2">Name</th>
-            <th colspan="3">TF 1 min</th>
-            <th colspan="3">TF 5 min</th>
-            <th colspan="3">TF 15 min</th>
+            {% for el in listTF %}
+                <th colspan="2">{{el}} min</th>
+            {% endfor %}
             <th width='10%'></th>
         </tr>
         <tr>
-            <th>Have_Impulse</th>
+            {% for el in listTF %}
+                <th>Have_Impulse</th>
             <th>Count_in_impulse</th>
-            <th>Is_Trend_Up</th>
-            <th>Have_Impulse</th>
-            <th>Count_in_impulse</th>
-            <th>Is_Trend_Up</th>
-            <th>Have_Impulse</th>
-            <th>Count_in_impulse</th>
-            <th>Is_Trend_Up</th>
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
         {% for el in result %}
             <tr>
                 <td>{{el.name}}</td>
-                {% load my_color_filter %}
-                <td class="{{el.tf1.isOpen|my_color_filter}}">
-                    {% if el.tf1.isOpen == 1%}
-                        <a style='color:white' href={% url 'screener:test_view' el.name '1'%}>В импульсе</a>
-                    {% else %}
-                        <a style='color:black' href={% url 'screener:test_view' el.name '1'%}>Ожидаем</a>
-                    {% endif%}
-                </td>
-                <td class="{{el.countC1|filter_count_in_impulse}}">
-                    {% if el.countC1 >= 10 %}
-                        <p style="color:white">{{el.countC1}}</p>
-                    {% else %}
-                        <p style="color:black">{{el.countC1}}</p>
-                    {%endif%}
-                </td>
-                <td>
-                    Up
-                </td>
-                <td class="{{el.tf5.isOpen|my_color_filter}}">
-                    {% if el.tf5.isOpen == 1%}
-                        <a style='color:white' href={% url 'screener:test_view' el.name '5'%}>В импульсе</a>
-                    {% else %}
-                        <a style='color:black' href={% url 'screener:test_view' el.name '5'%}>Ожидаем</a>
-                    {% endif%}
-                </td>
-                <td class="{{el.countC5|filter_count_in_impulse}}">
-                    {% if el.countC5 >= 10 %}
-                        <p style="color:white">{{el.countC5}}</p>
-                    {% else %}
-                        <p style="color:black">{{el.countC5}}</p>
-                    {%endif%}
-                </td>
-                <td>
-                    Up
-                </td>
-                <td class="{{el.tf15.isOpen|my_color_filter}}">
-                    {% if el.tf15.isOpen == 1%}
-                        <a style='color:white' href={% url 'screener:test_view' el.name '15'%}>В импульсе</a>
-                    {% else %}
-                        <a style='color:black' href={% url 'screener:test_view' el.name '15'%}>Ожидаем</a>
-                    {% endif%}
-                </td>
-                <td class="{{el.countC15|filter_count_in_impulse}}">
-                    {% if el.countC15 >= 10 %}
-                        <p style="color:white">{{el.countC15}}</p>
-                    {% else %}
-                        <p style="color:black">{{el.countC15}}</p>
-                    {%endif%}
-                </td>
+                    {% for imp in el.impInfo%}
+                    {% load my_color_filter %}
+                        <td class="{{imp.impulse.isOpen|my_color_filter}}">
+                            {% if imp.impulse.isOpen == 1%}
+                                <a style='color:white' href={% url 'screener:test_view' el.name imp.TF%}>В импульсе</a>
+                            {% else %}
+                                <a style='color:black' href={% url 'screener:test_view' el.name imp.TF%}>Ожидаем</a>
+                            {% endif%}
+                        </td>
+                        <td class="{{imp.count|filter_count_in_impulse}}">
+                            {% if imp.count >= 20 %}
+                                <p style="color:white">{{imp.count}}</p>
+                            {% else %}
+                                <p style="color:black">{{imp.count}}</p>
+                            {%endif%}
+                        </td>
+
+                    {% endfor %}
                 <td>
                     <button class="btn btn-primary">
                         <a style='color:white' href={% url 'screener:single_currency' el.name %}>Trading View</a>
