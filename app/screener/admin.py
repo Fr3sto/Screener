@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
-from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles
-from .clientWork import start_machine, get_start_data, get_impulses, startStreamBook
+from .models import Currency,BinanceKey, Machine, CurrencyTable, Candles, Impulses, BigOrders
+from .clientWork import start_machine, get_start_data, get_impulses, startStreamBook, deleteIncorrectCurrencies
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
 from threading import Thread
@@ -78,20 +78,12 @@ class CurrencyAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
     def startStopMachine(self,request):
-        machine = Machine.objects.all().first()
-        if machine.is_working:
-            machine.is_working = False
-        else:
-            machine.is_working = True
-        machine.save()
 
-        if machine.is_working:
-            self.message_user(request, "Bot is started")
+        self.message_user(request, "Bot is started")
 
-            thread = Thread(target=start_machine)
-            thread.start()
-        else:
-            self.message_user(request, "Bot is stopped")
+        thread = Thread(target=start_machine)
+        thread.start()
+
         return HttpResponseRedirect("../")
 
 @admin.register(Currency)
@@ -104,25 +96,34 @@ class CurrencyAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [path('getCurrency/', self.getCurrency)]
+        my_urls = [path('getCurrency/', self.getCurrency), path('deleteIncorCurr/', self.deleteIncorrCurrencies)]
         return my_urls + urls
-    
-    def startStopMachine(self,request):
-        
+
+    def deleteIncorrCurrencies(self, request):
+        deleteIncorrectCurrencies()
         return HttpResponseRedirect("../")
-    
 
     def getCurrency(self, request):
-        cmc = CoinMarketCapAPI(api_key='cad5ef95-5be7-459c-881b-b65b012ae02d')
-        rep = cmc.cryptocurrency_map() # See methods below
+        try:
+            CurrencyTable.objects.all().delete()
+            Candles.objects.all().delete()
+            Impulses.objects.all().delete()
+            BigOrders.objects.all().delete()
+            Currency.objects.all().delete()
 
-        df = pd.DataFrame(rep.data)
+            cmc = CoinMarketCapAPI(api_key='cad5ef95-5be7-459c-881b-b65b012ae02d')
+            rep = cmc.cryptocurrency_map() # See methods below
 
-        df = df.sort_values(by = ['rank'])
+            df = pd.DataFrame(rep.data)
+
+            df = df.sort_values(by = ['rank'])
 
 
-        for index, row in df.iterrows():
-            if(row['rank'] >= 100):
-                break
-            Currency.objects.create(name = row['symbol'] + 'USDT', rank = row['rank'])
+            for index, row in df.iterrows():
+                if(row['rank'] >= 100):
+                    break
+                curr = Currency.objects.create(name = row['symbol'] + 'USDT', rank = row['rank'])
+                curr.save()
+        except Exception as e:
+            print(e)
         return HttpResponseRedirect("../")

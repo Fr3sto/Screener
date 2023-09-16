@@ -22,16 +22,33 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO','https')
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-d+1ykdo-toc+i50_nexk@aeu(4x$#^^(zqx39g^o4qpvu6qqs5'
+SECRET_KEY = 'foo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = 1#bool(os.environ.get("DEBUG", default=0))
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:1337"]
 
-ALLOWED_HOSTS = ['45.12.75.165', '127.0.0.1', 'localhost', 'impulsescreener.com']
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")#['45.12.75.165', '127.0.0.1', 'localhost', 'impulsescreener.com']
+CSRF_TRUSTED_ORIGINS = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS").split(" ")#['http://127.0.0.1', 'https://impulsescreener.com', 'https://www.impulsescreener.com', 'http://impulsescreener.com']
+DATABASES = {
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", BASE_DIR / "db.sqlite3"),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
+    }
+}
 
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1", "https://impulsescreener.com", "https://www.impulsescreener.com", "http://impulsescreener.com"]
+# ALLOWED_HOSTS = ['45.12.75.165', '127.0.0.1', 'localhost', 'impulsescreener.com']
+# CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1', 'https://impulsescreener.com', 'https://www.impulsescreener.com', 'http://impulsescreener.com']
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 # Application definition
 
@@ -79,12 +96,9 @@ WSGI_APPLICATION = 'base.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+
+
+
 
 
 # Password validation
@@ -124,6 +138,7 @@ USE_TZ = False
 STATIC_URL = '/static/'
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 

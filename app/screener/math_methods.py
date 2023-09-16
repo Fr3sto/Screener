@@ -147,10 +147,23 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
         # dfOrders['date'] = dfOrders['date'].values.astype('<M8[m]')
         #
         # obj = px.scatter(dfOrders, x = 'date', y = 'price')
-        x = [x.date for x in bigOrders]
+        x = [x.dateEnd for x in bigOrders]
         y = [x.price for x in bigOrders]
 
-        fig.add_scatter(x = x, y = y, text = ['Quantity - ' + str(q.quantity) for q in bigOrders], mode='markers', marker=dict(size=10, color="Green"))
+
+        listX = []
+        listY = []
+        for el in bigOrders:
+            start_date = el.dateStart.replace(second=0, microsecond=0)
+            end_date = el.dateEnd.replace(second=0, microsecond=0)
+            mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+            dfR = df.loc[mask]
+            for index, row in dfR.iterrows():
+                listX.append(row['Date'])
+                listY.append(el.price)
+
+
+        fig.add_scatter(x = listX, y = listY, mode='markers', marker=dict(size=10, color="Green"))
 
 
     chart = fig.to_html()

@@ -1,25 +1,26 @@
-from .models import BinanceKey, Machine, Currency,Candles, CurrencyTable, Impulses, BigOrders
+from .models import BinanceKey, Currency,Candles, CurrencyTable, Impulses, BigOrders
 from datetime import datetime
 import pandas as pd
 import pytz
+from decouple import config
 from pytz import timezone
 from asgiref.sync import sync_to_async
 
 tz = pytz.timezone('Europe/Moscow')
 def get_keys():
-    binance_keys = BinanceKey.objects.all().first()
-    return binance_keys.api, binance_keys.secret
-
-def check_machine():
-    """ return true/false if bot is working """
-    return Machine.objects.all().first().is_working
-
+    api = config("API_KEY")
+    secret = config("SECRET_KEY")
+    return api, secret
 
 def deleteAllCandlesAndImpulses():
     Candles.objects.all().delete()
     Impulses.objects.all().delete()
 def getAllCurrency():
     return Currency.objects.all()
+
+def deleteIncorrectCurr(list):
+    for el in list:
+        Currency.objects.filter(name = el).delete()
 
 def getCandles(currency, tf):
     candles = Candles.objects.filter(symbol = currency, tf = tf)
@@ -55,12 +56,13 @@ def insertDate(currency, value, tf):
             curr_table.tf15 = value
         curr_table.save()
 
-
-@sync_to_async
-def insertOrder(symbol, type, date, price, quantity):
-    curr = Currency.objects.get(name = symbol)
-    order = BigOrders.objects.create(symbol = curr, type = type,date = date, price = price, quantity = quantity)
-    order.save()
+def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
+    try:
+        curr = Currency.objects.get(name = symbol)
+        order = BigOrders.objects.create(symbol = curr, type = type,dateStart = dateStart, dateEnd = dateEnd, price = price, quantity = quantity, pow = pow)
+        order.save()
+    except Exception as e:
+        print(e)
 
 def getOrders(currency):
     return BigOrders.objects.filter(symbol = currency)
@@ -87,8 +89,18 @@ def insertCandlesBulk(resultCandles):
         currency = Currency.objects.get(name = symbol)
         tf = key.split('-')[1]
 
-        for candle in value:
-            date = datetime.fromtimestamp(int(str(candle[0])[0:10]))
-            list_candles.append(Candles(symbol = currency, tf = tf, Date = date, Open = candle[1], High = candle[2], Low = candle[3], Close = candle[4], Volume = candle[5]))
+        if isinstance(value[0], list):
+            for candle in value:
+                date = datetime.fromtimestamp(int(str(candle[0])[0:10]))
+                list_candles.append(
+                    Candles(symbol=currency, tf=tf, Date=date, Open=candle[1], High=candle[2], Low=candle[3],
+                            Close=candle[4], Volume=candle[5]))
+        else:
+            date = datetime.fromtimestamp(int(str(value[0])[0:10]))
+            list_candles.append(
+                Candles(symbol=currency, tf=tf, Date=date, Open=value[1], High=value[2], Low=value[3],
+                        Close=value[4], Volume=value[5]))
+
+
 
     Candles.objects.bulk_create(list_candles)

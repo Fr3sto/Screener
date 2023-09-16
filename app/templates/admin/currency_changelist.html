@@ -8,5 +8,12 @@
         </form>
     </div>
     <br />
+    <div>
+        <form action="deleteIncorCurr/" method="POST">
+            {% csrf_token %}
+                <button type="submit">Delete Incorrect Currencies</button>
+        </form>
+    </div>
+    <br />
     {{ block.super }}
 {% endblock %}

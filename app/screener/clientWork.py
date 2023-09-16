@@ -1,24 +1,41 @@
 from .api_request import create_client
-from .db_request import (check_machine, getAllCurrency,
+from .db_request import (getAllCurrency,
                          insertCandle,insertCandles,
                          getCandles, insertImpulse,
                          deleteAllCandlesAndImpulses, getCandlesDF,
-                         get_keys, insertOrder, insertCandlesBulk)
+                         get_keys, insertOrder, insertCandlesBulk,deleteIncorrectCurr)
 from datetime import datetime
 from binance.client import Client
 from threading import Thread
 from .math_methods import impulse_long
 import pandas as pd
-import time
 import os
 import numpy as np
 import asyncio
-from binance import AsyncClient, BinanceSocketManager
+from binance import  ThreadedDepthCacheManager
 
+
+def deleteIncorrectCurrencies():
+    list_Currency = getAllCurrency()
+
+    df_Curr = pd.DataFrame(list_Currency.values())
+
+    client = create_client()
+    info = client.get_all_tickers()
+
+    list_symbols = np.array([])
+    for x in info:
+        list_symbols = np.append(list_symbols, x['symbol'])
+
+    my_symbols = np.array(df_Curr['name'])
+    diff = np.setdiff1d(my_symbols, list_symbols)
+    print(diff)
+    deleteIncorrectCurr(diff)
 
 def get_impulses():
     print("Get Impulses")
     list_Currency = getAllCurrency()
+
     for currency in list_Currency:
         df_Imp = getCandlesDF(currency, 5)
         impulse = impulse_long(df_Imp)
@@ -76,56 +93,52 @@ def get_start_data(self, request):
     print("Got Data")
 
 
-list_order = dict()
-streams = []
-async def streamDepth():
-    client = await AsyncClient.create()
-    bm = BinanceSocketManager(client)
-    # start any sockets here, i.e a trade socket
-    global streams
-    ms = bm.multiplex_socket(streams)
-    # then start receiving messages
-    async with ms as tscm:
-        while True:
-            try:
-                res = await tscm.recv()
-                global list_order
-                stream = res['stream']
-                # asks = [float(el[1]) for el in msg['data']['a']]
-                bids_q = [float(el[1]) for el in res['data']['bids']]
-                bids_p = [float(el[0]) for el in res['data']['bids']]
-
-                if list_order[stream].size > 100:
-                    aver = list_order[stream].mean()
-                    # print(aver)
-                    max_q = np.max(bids_q)
-                    if max_q > aver * 20:
-                        await insertOrder(stream.split('@')[0].upper(), "L", datetime.now(), bids_p[np.argmax(bids_q)], max_q)
-                        print(f"Name - {stream.split('@')[0].upper()}.Average - {aver}. Max - price - {bids_p[np.argmax(bids_q)]} - quantity - {max_q}")
-
-                    list_order[stream] = list_order[stream][10:]
-
-                list_order[stream] = np.concatenate((list_order[stream], bids_q))
-            except KeyError as e:
-                continue
+good_orders = dict()
 
 
-    await client.close_connection()
+def handle_depth_cache(depth_cache):
+    symbol = depth_cache.symbol
+    try:
+        top_bids = np.array(depth_cache.get_bids()[:30])  # Top 30 bids
+        aver_bid = top_bids[top_bids[:, 1].argsort()][15][1]  # Sort and aver bids
+        max_bids = top_bids[top_bids[:, 1] > aver_bid * 5]  # Bids more then aver * 5
+        if max_bids.size != 0:
+            if good_orders[symbol]:
+                keys = np.fromiter(good_orders[symbol].keys(), dtype=float)
+                diff = np.setdiff1d(keys, max_bids[0, :])
+
+                for el in diff:
+                    if good_orders[symbol][el]['countSec'] > 30:
+                        print(
+                            f'Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
+                        ths = Thread(target= insertOrder, args=(symbol, "L", good_orders[symbol][el]["dateStart"], good_orders[symbol][el]["dateEnd"], el, good_orders[symbol][el]["quantity"],good_orders[symbol][el]["pow"]))
+                        ths.start()
+                    del good_orders[symbol][el]
+            for el in max_bids:
+                if el[0] in good_orders[symbol]:
+                    good_orders[symbol][el[0]]['countSec'] = (datetime.now() - good_orders[symbol][el[0]]['dateStart']).seconds
+                    good_orders[symbol][el[0]]['quantity'] = el[1]
+                    good_orders[symbol][el[0]]['dateEnd'] = datetime.now()
+                else:
+                    good_orders[symbol][el[0]] = {'countSec': 0, 'quantity': el[1], 'dateStart': datetime.now(),
+                                                  'pow': np.round(el[1] / aver_bid, 1)}
+    except Exception as e:
+        pass
 
 def startStreamBook():
     print('Stream started')
 
-    list_Curr = getAllCurrency()
-    global list_order
-    for curr in list_Curr:
-        stream_name = f'{curr.name}@depth5@100ms'.lower()
-        streams.append(stream_name)
-        list_order[stream_name] = np.array([])
+    dcm = ThreadedDepthCacheManager()
+    # start is required to initialise its internal loop
+    dcm.start()
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(streamDepth())
+    global good_orders
+    list_Curr = getAllCurrency()
+    for curr in list_Curr:
+        dcm.start_depth_cache(handle_depth_cache, symbol=curr.name)
+        good_orders[curr.name] = dict()
+
+    dcm.join()
 
 
 def start_machine():
@@ -136,7 +149,7 @@ def start_machine():
 
     last_minute = datetime.now().minute
     threads = list()
-    while check_machine():
+    while True:
         if datetime.now().minute != last_minute:
             last_minute = datetime.now().minute
             print("Get Candles")
@@ -180,8 +193,11 @@ def start_machine():
 
 def getCandles(result, client, list_currency, interval, tf, limit, isLast = False):
     for curr in list_currency:
-        candles = client.get_klines(symbol=curr.name, interval=interval, limit = limit)
-        if isLast:
-            result[str(curr.name) + "-" + str(tf)] = candles[-2]
-        else:
-            result[str(curr.name) + "-" + str(tf)] = candles
+        try:
+            candles = client.get_klines(symbol=curr.name, interval=interval, limit = limit)
+            if isLast:
+                result[str(curr.name) + "-" + str(tf)] = candles[-2]
+            else:
+                result[str(curr.name) + "-" + str(tf)] = candles
+        except Exception as e:
+            print(curr.name)

@@ -21,7 +21,7 @@ class Candles(models.Model):
 
 class Machine(models.Model):
     is_working = models.BooleanField(default=False)
-    start_date = models.DateField(default=timezone.now)
+    start_date = models.DateField()
 
 class CurrencyTable(models.Model):
     symbol = models.ForeignKey(Currency, on_delete=models.CASCADE)
@@ -42,7 +42,9 @@ class Impulses(models.Model):
 class BigOrders(models.Model):
     symbol = models.ForeignKey(Currency, on_delete=models.CASCADE)
     type = models.CharField(max_length=5)
-    date = models.DateTimeField(default = timezone.now)
+    dateStart = models.DateTimeField()
+    dateEnd = models.DateTimeField()
     price = models.FloatField()
     quantity = models.FloatField()
+    pow = models.FloatField()
 
