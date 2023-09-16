@@ -21,7 +21,7 @@ def index(request):
             imp = Impulses.objects.get(symbol = curr, tf = TF, type = 'L')
             count_after_imp = 0
             if imp.isOpen:
-                diff = datetime.now() - imp.dateEnd + timedelta(hours=3)
+                diff = datetime.now() - imp.dateEnd
                 count_after_imp = np.round(diff.total_seconds() / 60 / TF,0)
             listImpulses.append({'impulse' : imp, 'count' :  count_after_imp, 'TF': TF})
         result.append({'name' : curr.name, 'impInfo' : listImpulses})

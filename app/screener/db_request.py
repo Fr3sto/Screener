@@ -48,6 +48,8 @@ def insertImpulse(currency, type, tf, list):
 
 def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
     try:
+        with open("orders.txt", "a") as file:
+            file.write(f'{symbol};{type};{dateStart};{dateEnd};{price};{quantity};{pow}\n')
         curr = Currency.objects.get(name = symbol)
         order = BigOrders.objects.create(symbol = curr, type = type,dateStart = dateStart, dateEnd = dateEnd, price = price, quantity = quantity, pow = pow)
         order.save()
@@ -63,8 +65,7 @@ def insertCandle(currency, tf, candle):
     candle.save()
 
 
-def insertCandles(symbol, tf, listCandles):
-    currency = Currency.objects.get(name = symbol)
+def insertCandles(currency, tf, listCandles):
     result_candle = []
     for candle in listCandles:
         date = datetime.fromtimestamp(int(str(candle[0])[0:10]))

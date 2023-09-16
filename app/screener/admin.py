@@ -6,7 +6,7 @@ from .clientWork import start_machine, get_start_data, get_impulses, startStream
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
 from threading import Thread
-
+import os
 
 @admin.register(Candles)
 class CandlesAdmin(admin.ModelAdmin):
@@ -100,7 +100,6 @@ class CurrencyAdmin(admin.ModelAdmin):
             df = pd.DataFrame(rep.data)
 
             df = df.sort_values(by = ['rank'])
-
 
             for index, row in df.iterrows():
                 if(row['rank'] >= 100):

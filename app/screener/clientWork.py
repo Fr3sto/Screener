@@ -77,40 +77,37 @@ def get_start_data(self, request):
     result = dict()
     threads = list()
     for part in listCurr:
-        t1 = Thread(target=getCandles, args=(result,client,part, Client.KLINE_INTERVAL_1MINUTE,1, 1000))
+        t1 = Thread(target=getCandles, args=(result,client,part, Client.KLINE_INTERVAL_1MINUTE,1, 500))
         threads.append(t1)
         t1.start()
 
-        t5 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_5MINUTE,5, 1000))
+        t5 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_5MINUTE,5, 500))
         threads.append(t5)
         t5.start()
 
-        t15 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_15MINUTE,15, 1000))
+        t15 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_15MINUTE,15, 500))
         threads.append(t15)
         t15.start()
 
-        t30 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_30MINUTE, 30, 1000))
+        t30 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_30MINUTE, 30, 500))
         threads.append(t30)
         t30.start()
 
-        t60 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_1HOUR,60, 1000))
+        t60 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_1HOUR,60, 500))
         threads.append(t60)
         t60.start()
 
-        t120 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_2HOUR, 120, 1000))
+        t120 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_2HOUR, 120, 500))
         threads.append(t120)
         t120.start()
 
-        t240 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_4HOUR, 240, 1000))
+        t240 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_4HOUR, 240, 500))
         threads.append(t240)
         t240.start()
 
     for index, thread in enumerate(threads):
         thread.join()
 
-    print("Starting Insert Data")
-
-    insertCandlesBulk(result)
 
     print("Got Data")
 
@@ -234,6 +231,6 @@ def getCandles(result, client, list_currency, interval, tf, limit, isLast = Fals
             if isLast:
                 result[str(curr.name) + "-" + str(tf)] = candles[-2]
             else:
-                result[str(curr.name) + "-" + str(tf)] = candles
+                insertCandles(curr, tf, candles)
         except Exception as e:
             print(curr.name)

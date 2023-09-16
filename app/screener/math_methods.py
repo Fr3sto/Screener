@@ -60,7 +60,6 @@ def impulse_long(df_HighTF, pulse_percent = 0.2):
                     isUp = False
 
                     if(height > pulse_percent * list[i][6] and count_trend_bar > 1 and list[i][6] != 0):
-                        print(f"Date - {dateEnd}. ATR - {list[i][6]}")
                         impulses.append([priceStart, dateStart, priceEnd, dateEnd, i, 0])
                         result.extend(impulse)
                         result.extend([0] * len(rollback))
