@@ -13,7 +13,6 @@ import os
 import numpy as np
 import asyncio
 from binance import  ThreadedDepthCacheManager
-import psutil
 import sys
 
 def deleteIncorrectCurrencies():
