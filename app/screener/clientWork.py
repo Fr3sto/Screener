@@ -14,6 +14,7 @@ import numpy as np
 import asyncio
 from binance import  ThreadedDepthCacheManager
 import psutil
+import sys
 
 def deleteIncorrectCurrencies():
     list_Currency = getAllCurrency()
@@ -115,6 +116,14 @@ def get_start_data(self, request):
     print("Got Data")
 
 
+def sizeof_fmt(num, suffix='B'):
+    ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f %s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f %s%s" % (num, 'Yi', suffix)
+
 good_orders = dict()
 
 
@@ -130,13 +139,13 @@ def handle_depth_cache(depth_cache):
                 diff = np.setdiff1d(keys, max_bids[0, :])
 
                 for el in diff:
-                    if good_orders[symbol][el]['countSec'] > 60:
+                    if good_orders[symbol][el]['countSec'] > 30:
                         print(
-                            f'Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
-                        ths = Thread(target= insertOrder, args=(symbol, "L", good_orders[symbol][el]["dateStart"], good_orders[symbol][el]["dateEnd"], el, good_orders[symbol][el]["quantity"],good_orders[symbol][el]["pow"]))
-                        ths.start()
+                            f'DELETE Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
+                        for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
+                                locals().items())), key=lambda x: -x[1])[:10]:
+                            print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))
                     del good_orders[symbol][el]
-                    print('RAM Used (GB):', psutil.virtual_memory()[3] / 1000000000)
             for el in max_bids:
                 if el[0] in good_orders[symbol]:
                     good_orders[symbol][el[0]]['countSec'] = (datetime.now() - good_orders[symbol][el[0]]['dateStart']).seconds
