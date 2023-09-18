@@ -108,9 +108,9 @@ def get_start_data(self, request):
     for index, thread in enumerate(threads):
         thread.join()
 
-    print('Start inserting data')
-
-    insertCandlesBulk(result)
+    # print('Start inserting data')
+    #
+    # insertCandlesBulk(result)
 
     print("Got Data")
 
@@ -235,6 +235,6 @@ def getCandles(result, client, list_currency, interval, tf, limit, isLast = Fals
             if isLast:
                 result[str(curr.name) + "-" + str(tf)] = candles[-2]
             else:
-                result[str(curr.name) + "-" + str(tf)] = candles
+                insertCandles(curr,tf,candles)#result[str(curr.name) + "-" + str(tf)] = candles
         except Exception as e:
             print(e)

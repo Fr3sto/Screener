@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d7781f90-3d6b-463e-8e2f-ae0031a7ff33" name="Changes" comment="Final version 16-09-2023">
-      <change beforePath="$PROJECT_DIR$/.env.dev" beforeDir="false" afterPath="$PROJECT_DIR$/.env.dev" afterDir="false" />
+    <list default="true" id="d7781f90-3d6b-463e-8e2f-ae0031a7ff33" name="Changes" comment="Final version 18-09-2023">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/app/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screener/clientWork.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/screener/clientWork.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/screener/math_methods.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/screener/math_methods.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -228,7 +224,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694890294685</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Final version 18-09-2023">
+      <option name="closed" value="true" />
+      <created>1695026672467</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1695026672467</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -237,6 +241,7 @@
     <MESSAGE value="Correct Impulse Data" />
     <MESSAGE value="Final version 14-09-2023" />
     <MESSAGE value="Final version 16-09-2023" />
-    <option name="LAST_COMMIT_MESSAGE" value="Final version 16-09-2023" />
+    <MESSAGE value="Final version 18-09-2023" />
+    <option name="LAST_COMMIT_MESSAGE" value="Final version 18-09-2023" />
   </component>
 </project>
