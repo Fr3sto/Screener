@@ -15,16 +15,24 @@ def index(request):
     currency = Currency.objects.all()
 
     list_TF = [1,5,15,30,60]
+    other_result = []
     for curr in currency:
         listImpulses = []
+        isHaveImpulse = False
         for TF in list_TF:
             imp = Impulses.objects.get(symbol = curr, tf = TF, type = 'L')
             count_after_imp = 0
             if imp.isOpen:
                 diff = datetime.now() - imp.dateEnd
                 count_after_imp = np.round(diff.total_seconds() / 60 / TF,0)
+                isHaveImpulse = True
             listImpulses.append({'impulse' : imp, 'count' :  count_after_imp, 'TF': TF})
-        result.append({'name' : curr.name, 'impInfo' : listImpulses})
+        if isHaveImpulse:
+            result.append({'name' : curr.name, 'impInfo' : listImpulses})
+        else:
+            other_result.append({'name': curr.name, 'impInfo': listImpulses})
+
+    result.extend(other_result)
     return render(request, 'screener/currency_table.html', {'result':result, 'listTF' : list_TF})
 
 def single_currency(request, name):

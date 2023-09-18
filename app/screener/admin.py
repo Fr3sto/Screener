@@ -99,8 +99,9 @@ class CurrencyAdmin(admin.ModelAdmin):
             for index, row in df.iterrows():
                 if(row['rank'] >= 100):
                     break
-                curr = Currency.objects.create(name = row['symbol'] + 'USDT', rank = row['rank'])
-                curr.save()
+                if (row['symbol'] != 'XECUSDT'):
+                    curr = Currency.objects.create(name=row['symbol'] + 'USDT', rank=row['rank'])
+                    curr.save()
         except Exception as e:
             print(e)
         return HttpResponseRedirect("../")

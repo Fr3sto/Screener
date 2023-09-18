@@ -77,7 +77,6 @@ def get_start_data(self, request):
 
     partI = 0
     for part in listCurr:
-        print('start Part ', part)
         result = dict()
         threads = []
         t1 = Thread(target=getCandles, args=(result,client,part, Client.KLINE_INTERVAL_1MINUTE,1, 500))
@@ -156,6 +155,7 @@ def handle_depth_cache(depth_cache):
                     good_orders[symbol][el[0]] = {'countSec': 0, 'quantity': el[1], 'dateStart': datetime.now(),
                                                   'pow': np.round(el[1] / aver_bid, 1)}
                     if aver_bid == 0:
+                        print(symbol)
                         print(top_bids[top_bids[:, 1].argsort()])
     except Exception as e:
         pass

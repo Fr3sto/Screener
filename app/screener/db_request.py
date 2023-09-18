@@ -53,7 +53,6 @@ def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
         curr = Currency.objects.get(name = symbol)
         order = BigOrders.objects.create(symbol = curr, type = type,dateStart = dateStart, dateEnd = dateEnd, price = price, quantity = quantity, pow = pow)
         order.save()
-        print('Inserted order')
     except Exception as e:
         print(e)
 
