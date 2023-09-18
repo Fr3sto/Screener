@@ -138,7 +138,7 @@ def handle_depth_cache(depth_cache):
                 diff = np.setdiff1d(keys, max_bids[0, :])
 
                 for el in diff:
-                    if good_orders[symbol][el]['countSec'] > 30:
+                    if good_orders[symbol][el]['countSec'] > 60:
                         print(
                             f'Inserting Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
                         th1 = Thread(target=insertOrder, args=(symbol,"L", good_orders[symbol][el]['dateStart'],good_orders[symbol][el]['dateEnd'],el,good_orders[symbol][el]['quantity'], good_orders[symbol][el]['pow']))
@@ -155,6 +155,8 @@ def handle_depth_cache(depth_cache):
                 else:
                     good_orders[symbol][el[0]] = {'countSec': 0, 'quantity': el[1], 'dateStart': datetime.now(),
                                                   'pow': np.round(el[1] / aver_bid, 1)}
+                    if aver_bid == 0:
+                        print(top_bids[top_bids[:, 1].argsort()])
     except Exception as e:
         pass
 
