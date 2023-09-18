@@ -6,6 +6,7 @@ from .db_request import (getAllCurrency,
                          get_keys, insertOrder, insertCandlesBulk,deleteIncorrectCurr)
 from datetime import datetime
 from binance.client import Client
+from binance import AsyncClient, DepthCacheManager
 from threading import Thread
 from .math_methods import impulse_long
 import pandas as pd
@@ -14,6 +15,7 @@ import numpy as np
 import asyncio
 from binance import  ThreadedDepthCacheManager
 import sys
+import time
 
 def deleteIncorrectCurrencies():
     list_Currency = getAllCurrency()
@@ -29,7 +31,6 @@ def deleteIncorrectCurrencies():
 
     my_symbols = np.array(df_Curr['name'])
     diff = np.setdiff1d(my_symbols, list_symbols)
-    print(diff)
     deleteIncorrectCurr(diff)
 
 def get_impulses():
@@ -60,10 +61,9 @@ def get_impulses():
 
     print("Got Impulses")
 
-def divide_chunks(l, n):
-    # looping till length l
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+def split(a, n):
+    k, m = divmod(len(a), n)
+    return (a[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n))
 
 def get_start_data(self, request):
     client = create_client()
@@ -71,42 +71,49 @@ def get_start_data(self, request):
 
     deleteAllCandlesAndImpulses()
 
-    listCurr = list(divide_chunks(list_Currency, 6))
+    listCurr = list(split(list_Currency, 3))
     print("Start Getting Data")
 
-    result = dict()
-    threads = list()
+
+    partI = 0
     for part in listCurr:
+        print('start Part ', part)
+        result = dict()
+        threads = []
         t1 = Thread(target=getCandles, args=(result,client,part, Client.KLINE_INTERVAL_1MINUTE,1, 500))
         threads.append(t1)
-        t1.start()
 
         t5 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_5MINUTE,5, 500))
         threads.append(t5)
-        t5.start()
 
         t15 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_15MINUTE,15, 500))
         threads.append(t15)
-        t15.start()
 
         t30 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_30MINUTE, 30, 500))
         threads.append(t30)
-        t30.start()
 
         t60 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_1HOUR,60, 500))
         threads.append(t60)
-        t60.start()
 
         t120 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_2HOUR, 120, 500))
         threads.append(t120)
-        t120.start()
 
         t240 = Thread(target=getCandles, args=(result, client, part, Client.KLINE_INTERVAL_4HOUR, 240, 500))
         threads.append(t240)
-        t240.start()
 
-    for index, thread in enumerate(threads):
-        thread.join()
+        for x in threads:
+            x.start()
+
+        for x in threads:
+            x.join()
+
+
+        insertCandlesBulk(result)
+
+        print('End part ',partI)
+        partI += 1
+
+
 
     # print('Start inserting data')
     #
@@ -133,7 +140,10 @@ def handle_depth_cache(depth_cache):
                 for el in diff:
                     if good_orders[symbol][el]['countSec'] > 30:
                         print(
-                            f'DELETE Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
+                            f'Inserting Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
+                        th1 = Thread(target=insertOrder, args=(symbol,"L", good_orders[symbol][el]['dateStart'],good_orders[symbol][el]['dateEnd'],el,good_orders[symbol][el]['quantity'], good_orders[symbol][el]['pow']))
+                        th1.start()
+                        th1.join()
                     del good_orders[symbol][el]
             for el in max_bids:
                 if el[0] in good_orders[symbol]:
@@ -148,9 +158,12 @@ def handle_depth_cache(depth_cache):
     except Exception as e:
         pass
 
-def startStreamBook():
+
+
+
+def streaming_book():
     try:
-        print('Stream started')
+        print('Stream Book started')
 
         dcm = ThreadedDepthCacheManager()
         # start is required to initialise its internal loop
@@ -164,61 +177,65 @@ def startStreamBook():
 
         dcm.join()
     except Exception as e:
+        print('EXCEPTION')
         print(e)
 
 
+def start_streams():
+    th = Thread(target=streaming_book)
+    th.start()
 
-def start_machine():
+    th = Thread(target=streaming_kline)
+    th.start()
+
+
+def streaming_kline():
     client = create_client()
-    list_Currency = list(divide_chunks(getAllCurrency(), 6))
-    print('Machine started')
+    list_Currency = getAllCurrency()
+    print('Stream Kline started')
 
 
     last_minute = datetime.now().minute
-    threads = list()
+
     while True:
         if datetime.now().minute != last_minute:
             last_minute = datetime.now().minute
             last_hour = datetime.now().hour
             print("Get Candles")
             result = dict()
+            threads = list()
             #print("Get 1Min")
-            for part in list_Currency:
-                t1 = Thread(target = getCandles, args=(result,client,part, Client.KLINE_INTERVAL_1MINUTE,1, 2, True))
-                threads.append(t1)
-                t1.start()
-                if last_minute % 5 == 0:
-                    #print("Get 5Min")
-                    t5 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_5MINUTE,5, 2, True))
-                    threads.append(t5)
-                    t5.start()
-                if last_minute % 15 == 0:
-                    #print("Get 15Min")
-                    t15 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_15MINUTE ,15, 2, True))
-                    threads.append(t15)
-                    t15.start()
-                if last_minute % 30 == 0:
-                    #print("Get 15Min")
-                    t30 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_30MINUTE ,30, 2, True))
-                    threads.append(t30)
-                    t30.start()
-                if last_minute == 0:
-                    t60 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_1HOUR, 60, 2, True))
-                    threads.append(t60)
-                    t60.start()
-                if last_minute == 0 and last_hour % 2 == 0:
-                    t120 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_2HOUR, 120, 2, True))
-                    threads.append(t120)
-                    t120.start()
-                if last_minute == 0 and last_hour % 4 == 0:
-                    t240 = Thread(target=getCandles, args=(result,client, part, Client.KLINE_INTERVAL_4HOUR, 240, 2, True))
-                    threads.append(t240)
-                    t240.start()
+            t1 = Thread(target=getCandles, args=(result, client, list_Currency, Client.KLINE_INTERVAL_1MINUTE, 1, 2, True))
+            threads.append(t1)
+            if last_minute % 5 == 0:
+                # print("Get 5Min")
+                t5 = Thread(target=getCandles, args=(result, client, list_Currency, Client.KLINE_INTERVAL_5MINUTE, 5, 2, True))
+                threads.append(t5)
+            if last_minute % 15 == 0:
+                # print("Get 15Min")
+                t15 = Thread(target=getCandles,
+                             args=(result, client, list_Currency, Client.KLINE_INTERVAL_15MINUTE, 15, 2, True))
+                threads.append(t15)
+            if last_minute % 30 == 0:
+                # print("Get 15Min")
+                t30 = Thread(target=getCandles,
+                             args=(result, client, list_Currency, Client.KLINE_INTERVAL_30MINUTE, 30, 2, True))
+                threads.append(t30)
+            if last_minute == 0:
+                t60 = Thread(target=getCandles, args=(result, client, list_Currency, Client.KLINE_INTERVAL_1HOUR, 60, 2, True))
+                threads.append(t60)
+            if last_minute == 0 and last_hour % 2 == 0:
+                t120 = Thread(target=getCandles, args=(result, client, list_Currency, Client.KLINE_INTERVAL_2HOUR, 120, 2, True))
+                threads.append(t120)
+            if last_minute == 0 and last_hour % 4 == 0:
+                t240 = Thread(target=getCandles, args=(result, client, list_Currency, Client.KLINE_INTERVAL_4HOUR, 240, 2, True))
+                threads.append(t240)
 
-            for index, thread in enumerate(threads):
-                thread.join()
+            for x in threads:
+                x.start()
 
-            threads.clear()
+            for x in threads:
+                x.join()
 
             print("Starting Insert Data")
 
@@ -227,6 +244,8 @@ def start_machine():
             print("Got Candles")
 
             get_impulses()
+
+        time.sleep(1)
 
 
 
@@ -239,6 +258,7 @@ def getCandles(result, client, list_currency, interval, tf, limit, isLast = Fals
             if isLast:
                 result[str(curr.name) + "-" + str(tf)] = candles[-2]
             else:
-                insertCandles(curr,tf,candles)#result[str(curr.name) + "-" + str(tf)] = candles
+                #insertCandles(curr,tf,candles)
+                result[str(curr.name) + "-" + str(tf)] = candles
         except Exception as e:
             print(e)

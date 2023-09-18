@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
 from .models import Currency,BinanceKey, Machine, Candles, Impulses, BigOrders
-from .clientWork import start_machine, get_start_data, get_impulses, startStreamBook, deleteIncorrectCurrencies
+from .clientWork import get_start_data, get_impulses, deleteIncorrectCurrencies,start_streams
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
 from threading import Thread
@@ -36,14 +36,11 @@ class CurrencyAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
-        my_urls = [path('startStopMachine/', self.startStopMachine),
+        my_urls = [path('startStreams/', self.startStreams),
                    path('getStartData/', self.getStartData),
-                   path('getImpulses/', self.getImpulses),
-                   path('startStreamBook/', self.startStreamBook)]
+                   path('getImpulses/', self.getImpulses)]
         return my_urls + urls
 
-    def startStreamBook(self, request):
-        startStreamBook()
 
         return HttpResponseRedirect("../")
     def getStartData(self, request):
@@ -60,12 +57,11 @@ class CurrencyAdmin(admin.ModelAdmin):
 
         return HttpResponseRedirect("../")
 
-    def startStopMachine(self,request):
+    def startStreams(self,request):
 
         self.message_user(request, "Bot is started")
 
-        thread = Thread(target=start_machine)
-        thread.start()
+        start_streams()
 
         return HttpResponseRedirect("../")
 

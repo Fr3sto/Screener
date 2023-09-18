@@ -151,12 +151,13 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
                           line=dict(color="LightGreen")
                           )
 
-            line = getLine(df, dateEnd, diffIndex=10)
+            if impulse.isOpen:
+                line = getLine(df, dateEnd, diffIndex=10)
 
-            if line[0] != 0:
-                fig.add_shape(type="line",
-                              x0=line[0], y0=line[1], x1=line[2], y1=line[3],
-                              line=dict(color="Green", width=3))
+                if line[0] != 0:
+                    fig.add_shape(type="line",
+                                  x0=line[0], y0=line[1], x1=line[2], y1=line[3],
+                                  line=dict(color="Green", width=3))
 
     if len(bigOrders) != 0:
         # dfOrders = pd.DataFrame([vars(s) for s in bigOrders])

@@ -16,17 +16,11 @@
     </div>
     <br />
     <div>
-        <form action="startStreamBook/" method="POST">
+        <form action="startStreams/" method="POST">
             {% csrf_token %}
-                <button type="submit">StartStreamBook</button>
+                <button type="submit">Start Streams</button>
         </form>
     </div>
     <br />
-    <div>
-        <form action="startStopMachine/" method="POST">
-            {% csrf_token %}
-                <button type="submit">Start Stop Machine</button>
-        </form>
-    </div>
     {{ block.super }}
 {% endblock %}

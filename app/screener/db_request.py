@@ -53,6 +53,7 @@ def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
         curr = Currency.objects.get(name = symbol)
         order = BigOrders.objects.create(symbol = curr, type = type,dateStart = dateStart, dateEnd = dateEnd, price = price, quantity = quantity, pow = pow)
         order.save()
+        print('Inserted order')
     except Exception as e:
         print(e)
 
@@ -92,6 +93,6 @@ def insertCandlesBulk(resultCandles):
                 Candles(symbol=currency, tf=tf, Date=date, Open=value[1], High=value[2], Low=value[3],
                         Close=value[4], Volume=value[5]))
 
-
-
     Candles.objects.bulk_create(list_candles)
+
+
