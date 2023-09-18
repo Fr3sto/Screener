@@ -13,7 +13,7 @@ import os
 import numpy as np
 import asyncio
 from binance import  ThreadedDepthCacheManager
-
+import psutil
 
 def deleteIncorrectCurrencies():
     list_Currency = getAllCurrency()
@@ -108,6 +108,9 @@ def get_start_data(self, request):
     for index, thread in enumerate(threads):
         thread.join()
 
+    print('Start inserting data')
+
+    insertCandlesBulk(result)
 
     print("Got Data")
 
@@ -133,6 +136,7 @@ def handle_depth_cache(depth_cache):
                         ths = Thread(target= insertOrder, args=(symbol, "L", good_orders[symbol][el]["dateStart"], good_orders[symbol][el]["dateEnd"], el, good_orders[symbol][el]["quantity"],good_orders[symbol][el]["pow"]))
                         ths.start()
                     del good_orders[symbol][el]
+                    print('RAM Used (GB):', psutil.virtual_memory()[3] / 1000000000)
             for el in max_bids:
                 if el[0] in good_orders[symbol]:
                     good_orders[symbol][el[0]]['countSec'] = (datetime.now() - good_orders[symbol][el[0]]['dateStart']).seconds
@@ -231,6 +235,6 @@ def getCandles(result, client, list_currency, interval, tf, limit, isLast = Fals
             if isLast:
                 result[str(curr.name) + "-" + str(tf)] = candles[-2]
             else:
-                insertCandles(curr, tf, candles)
+                result[str(curr.name) + "-" + str(tf)] = candles
         except Exception as e:
-            print(curr.name)
+            print(e)

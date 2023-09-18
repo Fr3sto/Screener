@@ -3,6 +3,7 @@ import datetime
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
+import numpy as np
 
 def atr(df, period):
     df['Max'] =  df['High'].rolling(period).max().shift().fillna(0)
@@ -150,6 +151,13 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
                           line=dict(color="LightGreen")
                           )
 
+            line = getLine(df, dateEnd, diffIndex=10)
+
+            if line[0] != 0:
+                fig.add_shape(type="line",
+                              x0=line[0], y0=line[1], x1=line[2], y1=line[3],
+                              line=dict(color="Green", width=3))
+
     if len(bigOrders) != 0:
         # dfOrders = pd.DataFrame([vars(s) for s in bigOrders])
         #
@@ -175,6 +183,65 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
         fig.add_scatter(x = listX, y = listY, mode='markers', marker=dict(size=10, color="Green"))
 
 
+
     chart = fig.to_html()
 
     return chart
+
+
+def getLine(df, dateEnd, countInGood = 10, diffIndex = 20, countTouch = 2):
+    listLow = df[df['Date'] >= dateEnd]['Low']
+
+    indexes = np.arange(len(listLow))
+
+    lastDate = df['Date'].iat[-1]
+
+    df = pd.DataFrame({'index': indexes, 'Low': listLow})
+    array = df.to_numpy()
+
+    array = array[array[:, 1].argsort()]
+
+    startIndex = array[0][0]
+    maxOfLow = array[0][1]
+    maxOfIndexL = startIndex
+    minOfIndexL = startIndex
+
+    indexs = [startIndex]
+    countIn = 1
+
+    for el in array[1:]:
+        if countIn > countInGood:
+            return [0, 0, 0, 0]
+        else:
+            currIndex = el[0]
+            currLow = el[1]
+
+            isGood = True
+
+            for ind in indexs:
+                if abs(currIndex - ind) < diffIndex:
+                    isGood = False
+                    break
+
+            if isGood:
+                indexs.append(currIndex)
+
+                if currLow > maxOfLow:
+                    maxOfLow = currLow
+
+                if currIndex > maxOfIndexL:
+                    maxOfIndexL = currIndex
+
+                if currIndex < minOfIndexL:
+                    minOfIndex = currIndex
+            else:
+                countIn += 1
+
+                if currIndex > maxOfIndexL:
+                    maxOfIndexL = currIndex
+
+                if currIndex < minOfIndexL:
+                    minOfIndex = currIndex
+
+            if len(indexs) >= countTouch:
+                return [dateEnd, maxOfLow, lastDate, maxOfLow]
