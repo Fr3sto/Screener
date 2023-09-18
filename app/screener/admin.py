@@ -43,8 +43,7 @@ class CurrencyAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def startStreamBook(self, request):
-        t1 = Thread(target=startStreamBook)
-        t1.start()
+        startStreamBook()
 
         return HttpResponseRedirect("../")
     def getStartData(self, request):

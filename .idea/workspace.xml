@@ -6,6 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="d7781f90-3d6b-463e-8e2f-ae0031a7ff33" name="Changes" comment="Final version 18-09-2023">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/base/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/base/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/app/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/screener/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/screener/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/screener/clientWork.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/screener/clientWork.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -240,7 +243,15 @@
       <option name="project" value="LOCAL" />
       <updated>1695031295788</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Final version 18-09-2023">
+      <option name="closed" value="true" />
+      <created>1695031414896</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1695031414896</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

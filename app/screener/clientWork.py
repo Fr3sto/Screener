@@ -116,13 +116,6 @@ def get_start_data(self, request):
     print("Got Data")
 
 
-def sizeof_fmt(num, suffix='B'):
-    ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
-    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
-        if abs(num) < 1024.0:
-            return "%3.1f %s%s" % (num, unit, suffix)
-        num /= 1024.0
-    return "%.1f %s%s" % (num, 'Yi', suffix)
 
 good_orders = dict()
 
@@ -142,15 +135,14 @@ def handle_depth_cache(depth_cache):
                     if good_orders[symbol][el]['countSec'] > 30:
                         print(
                             f'DELETE Symbol {symbol}. Price {el}, Quantity {good_orders[symbol][el]["quantity"]}, Pow - {good_orders[symbol][el]["pow"]} Time Live {good_orders[symbol][el]["countSec"]}sec')
-                        for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
-                                locals().items())), key=lambda x: -x[1])[:10]:
-                            print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))
                     del good_orders[symbol][el]
             for el in max_bids:
                 if el[0] in good_orders[symbol]:
                     good_orders[symbol][el[0]]['countSec'] = (datetime.now() - good_orders[symbol][el[0]]['dateStart']).seconds
                     good_orders[symbol][el[0]]['quantity'] = el[1]
                     good_orders[symbol][el[0]]['dateEnd'] = datetime.now()
+                    #print(
+                    #    f'Symbol {symbol}. Price {el[0]}, Quantity {good_orders[symbol][el[0]]["quantity"]}, Pow - {good_orders[symbol][el[0]]["pow"]} Time Live {good_orders[symbol][el[0]]["countSec"]}sec')
                 else:
                     good_orders[symbol][el[0]] = {'countSec': 0, 'quantity': el[1], 'dateStart': datetime.now(),
                                                   'pow': np.round(el[1] / aver_bid, 1)}
@@ -158,19 +150,23 @@ def handle_depth_cache(depth_cache):
         pass
 
 def startStreamBook():
-    print('Stream started')
+    try:
+        print('Stream started')
 
-    dcm = ThreadedDepthCacheManager()
-    # start is required to initialise its internal loop
-    dcm.start()
+        dcm = ThreadedDepthCacheManager()
+        # start is required to initialise its internal loop
+        dcm.start()
 
-    global good_orders
-    list_Curr = getAllCurrency()
-    for curr in list_Curr:
-        dcm.start_depth_cache(handle_depth_cache, symbol=curr.name)
-        good_orders[curr.name] = dict()
+        global good_orders
+        list_Curr = getAllCurrency()
+        for curr in list_Curr:
+            dcm.start_depth_cache(handle_depth_cache, symbol=curr.name)
+            good_orders[curr.name] = dict()
 
-    dcm.join()
+        dcm.join()
+    except Exception as e:
+        print(e)
+
 
 
 def start_machine():
