@@ -38,8 +38,23 @@ class CurrencyAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         my_urls = [path('startStreams/', self.startStreams),
                    path('getStartData/', self.getStartData),
-                   path('getImpulses/', self.getImpulses)]
+                   path('getImpulses/', self.getImpulses),
+                   path('getOrderBook/', self.getOrderBook)]
         return my_urls + urls
+
+
+        return HttpResponseRedirect("../")
+
+    def getOrderBook(self, request):
+
+        with open("orders.txt") as fp:
+            Lines = fp.readlines()
+            for line in Lines:
+                line = line.split(';')
+                curr = Currency.objects.get(name=line[0])
+                order = BigOrders.objects.create(symbol=curr, type=line[1], dateStart=line[2], dateEnd=line[3],
+                                                 price=line[4], quantity=line[5], pow=line[6])
+                order.save()
 
 
         return HttpResponseRedirect("../")

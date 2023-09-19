@@ -16,6 +16,13 @@
     </div>
     <br />
     <div>
+        <form action="getOrderBook/" method="POST">
+            {% csrf_token %}
+                <button type="submit">Get Order Book</button>
+        </form>
+    </div>
+    <br />
+    <div>
         <form action="startStreams/" method="POST">
             {% csrf_token %}
                 <button type="submit">Start Streams</button>
