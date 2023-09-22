@@ -43,20 +43,36 @@
                      {% endif%}
                  </td>
                     {% for imp in el.impInfo%}
-                        <td class="{{imp.impulse.isOpen|my_color_filter}}">
-                            {% if imp.impulse.isOpen == 1%}
-                                <a style='color:white' href={% url 'screener:test_view' el.name imp.TF%}>В импульсе</a>
+                        {% if imp.impulse != 0%}
+                            {% if imp.impulse.type == "L" %}
+                                <td class="bg-success">
+                                    <a style='color:white' href={% url 'screener:test_view' el.name imp.TF 'L'%}>В импульсе</a>
+                                </td>
                             {% else %}
-                                <a style='color:black' href={% url 'screener:test_view' el.name imp.TF%}>Ожидаем</a>
-                            {% endif%}
-                        </td>
-                        <td class="{{imp.count|filter_count_in_impulse}}">
+                                <td class="bg-danger">
+                                    <a style='color:white' href={% url 'screener:test_view' el.name imp.TF 'S'%}>В импульсе</a>
+                                </td>
+                            {% endif %}
                             {% if imp.count >= 20 %}
-                                <p style="color:white">{{imp.count}}</p>
+                                {% if imp.impulse.type == "L"%}
+                                    <td class="bg-success">
+                                        <p style="color:white">{{imp.count}}</p>
+                                    </td>
+                                {% else %}
+                                    <td class="bg-danger">
+                                        <p style="color:white">{{imp.count}}</p>
+                                    </td>
+                                {% endif %}
                             {% else %}
-                                <p style="color:black">{{imp.count}}</p>
-                            {%endif%}
-                        </td>
+                                <td>
+                                    <p style="color:black">{{imp.count}}</p>
+                                </td>
+                            {% endif %}
+
+                        {% else %}
+                            <td>Не в импульсе</td>
+                            <td>0</td>
+                        {% endif %}
 
                     {% endfor %}
                 <td>

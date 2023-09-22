@@ -46,6 +46,9 @@ def insertImpulse(currency, type, tf, list):
          impulse.isOpen = list[5]
          impulse.save()
 
+def DeleteAllImpulses():
+    Impulses.objects.all().delete()
+
 def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
     try:
         with open("orders.txt", "a") as file:

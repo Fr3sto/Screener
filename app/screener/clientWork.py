@@ -2,16 +2,22 @@ from .db_request import (getAllCurrency,
                          insertCandle,insertCandles,
                          getCandles, insertImpulse,
                          deleteAllCandlesAndImpulses, getCandlesDF,
-                         get_keys, insertOrder, insertCandlesBulk,deleteIncorrectCurr,insertOrdersRealTimeOrUpdate,deleteOrdersRealTime,deleteAllOrdersRT)
+                         get_keys, insertOrder, insertCandlesBulk,
+                         deleteIncorrectCurr,insertOrdersRealTimeOrUpdate,
+                         deleteOrdersRealTime,deleteAllOrdersRT,
+                         DeleteAllImpulses)
 from datetime import datetime
 from threading import Thread,Timer
-from .math_methods import impulse_long
+from .math_methods import impulse_long, impulse_short
 import numpy as np
 import time
 import ccxt
 
 def get_impulses():
     print("Get Impulses")
+
+    DeleteAllImpulses()
+
     list_Currency = getAllCurrency()
 
     for currency in list_Currency:
@@ -35,8 +41,31 @@ def get_impulses():
         impulse = impulse_long(df_Imp)
         insertImpulse(currency, 'L', 60, impulse)
 
+    print("Got Impulses Long")
 
-    print("Got Impulses")
+    for currency in list_Currency:
+        df_Imp = getCandlesDF(currency, 5)
+        impulse = impulse_short(df_Imp)
+        insertImpulse(currency, 'S', 1, impulse)
+
+        df_Imp = getCandlesDF(currency, 15)
+        impulse = impulse_short(df_Imp)
+        insertImpulse(currency, 'S', 5, impulse)
+
+        df_Imp = getCandlesDF(currency, 60)
+        impulse = impulse_short(df_Imp)
+        insertImpulse(currency, 'S', 15, impulse)
+
+        df_Imp = getCandlesDF(currency, 120)
+        impulse = impulse_short(df_Imp)
+        insertImpulse(currency, 'S', 30, impulse)
+
+        df_Imp = getCandlesDF(currency, 240)
+        impulse = impulse_short(df_Imp)
+        insertImpulse(currency, 'S', 60, impulse)
+
+
+    print("Got Impulses Short")
 
 def split(a, n):
     k, m = divmod(len(a), n)

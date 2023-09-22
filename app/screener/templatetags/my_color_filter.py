@@ -1,4 +1,5 @@
 from django import template
+from ..models import Impulses
 register = template.Library()
 
 def is_in(var, args):
@@ -9,12 +10,17 @@ def is_in(var, args):
 
 register.filter(is_in)
 @register.filter()
-def my_color_filter(isOpen):
-    if isOpen == 1:
-        td_class = 'bg-success'
-    else:
-        td_class = ''
-    return td_class
+def my_color_filter(impulse : Impulses):
+    if isinstance(impulse, Impulses):
+        if impulse.type == "L":
+            if impulse.isOpen == 1:
+                return 'bg-success'
+        elif impulse.type == "S":
+            if impulse.isOpen == 1:
+                return 'bg-danger'
+        return ''
+
+
 
 @register.filter()
 def filter_count_in_impulse(count):

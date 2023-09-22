@@ -40,7 +40,7 @@ DATABASES = {
         "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
-
+#
 # ALLOWED_HOSTS = ['45.12.75.165', '127.0.0.1', 'localhost', 'impulsescreener.com']
 # CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1', 'https://impulsescreener.com', 'https://www.impulsescreener.com', 'http://impulsescreener.com']
 # DATABASES = {

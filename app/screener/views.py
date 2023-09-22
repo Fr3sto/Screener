@@ -20,13 +20,18 @@ def index(request):
         listImpulses = []
         isHaveImpulse = False
         for TF in list_TF:
-            imp = Impulses.objects.get(symbol = curr, tf = TF, type = 'L')
+            currImp = 0
             count_after_imp = 0
-            if imp.isOpen:
-                diff = datetime.now() - imp.dateEnd
-                count_after_imp = np.round(diff.total_seconds() / 60 / TF,0)
-                isHaveImpulse = True
-            listImpulses.append({'impulse' : imp, 'count' :  count_after_imp, 'TF': TF})
+            # ПРОХОДИМСЯ ПО ИМПУЛЬСАМ
+            imp_list = Impulses.objects.filter(symbol = curr, tf = TF)
+            for imp in imp_list:
+                if imp.isOpen:
+                    diff = datetime.now() - imp.dateEnd
+                    count_after_imp = np.round(diff.total_seconds() / 60 / TF,0)
+                    isHaveImpulse = True
+                    currImp = imp
+            listImpulses.append({'impulse' : currImp, 'count' :  count_after_imp, 'TF': TF})
+        # ЗАПИСЫВАЕМ ОРДЕРА
         orderLMin = 0
         if OrdersRealtime.objects.filter(symbol = curr, type = 'bids').exists():
             orderL = OrdersRealtime.objects.get(symbol_id=curr, type='bids')
@@ -47,10 +52,10 @@ def single_currency(request, name):
     print(name)
     return render(request, 'screener/single_currency.html', {'name' : name})
 
-def test_view(request,name, tf):
+def test_view(request,name, tf, type):
     currency = Currency.objects.get(name = name)
     df = getCandlesDF(currency, tf)
-    imp = Impulses.objects.get(symbol = currency, tf = tf, type = 'L')
+    imp = Impulses.objects.get(symbol = currency, tf = tf, type = type)
     #bigOrders = getOrders(currency)
     chart = getChartWithImpulse(df, imp, tf)
     return render(request, 'screener/test_view.html', {'chart': chart})
