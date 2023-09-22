@@ -25,7 +25,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO','https')
 SECRET_KEY = 'foo'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 1#bool(os.environ.get("DEBUG", default=0))
+DEBUG = False#bool(os.environ.get("DEBUG", default=0))
 
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")#['45.12.75.165', '127.0.0.1', 'localhost', 'impulsescreener.com']

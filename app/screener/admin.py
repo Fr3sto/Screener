@@ -2,11 +2,13 @@ from django.contrib import admin
 from django.urls import path
 from django.http import HttpResponseRedirect
 from .models import Currency,BinanceKey, Machine, Candles, Impulses, BigOrders
-from .clientWork import get_start_data, get_impulses, deleteIncorrectCurrencies,start_streams
+from .clientWork import get_start_data, get_impulses,start_streams
 import pandas as pd
 from coinmarketcapapi import CoinMarketCapAPI
 from threading import Thread
 import os
+import ccxt
+import numpy as np
 
 @admin.register(Candles)
 class CandlesAdmin(admin.ModelAdmin):
@@ -46,21 +48,29 @@ class CurrencyAdmin(admin.ModelAdmin):
         return HttpResponseRedirect("../")
 
     def getOrderBook(self, request):
-
+        BigOrders.objects.all().delete()
         with open("orders.txt") as fp:
             Lines = fp.readlines()
+            listOrder = []
             for line in Lines:
                 line = line.split(';')
-                curr = Currency.objects.get(name=line[0])
-                order = BigOrders.objects.create(symbol=curr, type=line[1], dateStart=line[2], dateEnd=line[3],
-                                                 price=line[4], quantity=line[5], pow=line[6])
-                order.save()
+                try:
+                    curr = Currency.objects.get(name=line[0])
+                    order = BigOrders(symbol=curr, type=line[1], dateStart=line[2], dateEnd=line[3],
+                                                     price=line[4], quantity=line[5], pow=line[6])
+                    listOrder.append(order)
+                except Exception as e:
+                    pass
 
+        BigOrders.objects.bulk_create(listOrder)
 
+        self.message_user(request, "Orders inserted")
         return HttpResponseRedirect("../")
     def getStartData(self, request):
         t1 = Thread(target=get_start_data, args=(self, request))
         t1.start()
+        t1.join()
+        self.message_user(request, "Data inserted")
 
         return HttpResponseRedirect("../")
 
@@ -68,7 +78,7 @@ class CurrencyAdmin(admin.ModelAdmin):
         thread = Thread(target=get_impulses)
         thread.start()
         thread.join()
-
+        self.message_user(request, "Impulses inserted")
 
         return HttpResponseRedirect("../")
 
@@ -94,7 +104,26 @@ class CurrencyAdmin(admin.ModelAdmin):
         return my_urls + urls
 
     def deleteIncorrCurrencies(self, request):
-        deleteIncorrectCurrencies()
+
+        ex = ccxt.binance()
+
+        markets = ex.load_markets()
+
+        list_curr = Currency.objects.all()
+
+        Currency.objects.filter(name = 'USDC').delete()
+        Currency.objects.filter(name='TUSD').delete()
+        Currency.objects.filter(name='BUSD').delete()
+        Currency.objects.filter(name='USDP').delete()
+
+        for curr in list_curr:
+            if not curr.name + '/USDT' in markets:
+                Currency.objects.filter(name = curr.name).delete()
+            elif curr.name + '/USDT' in markets and markets[curr.name + '/USDT']['info']['status'] == 'BREAK':
+                Currency.objects.filter(name = curr.name).delete()
+
+        self.message_user(request, "Incorrect deleted")
+
         return HttpResponseRedirect("../")
 
     def getCurrency(self, request):
@@ -112,11 +141,13 @@ class CurrencyAdmin(admin.ModelAdmin):
             df = df.sort_values(by = ['rank'])
 
             for index, row in df.iterrows():
-                if(row['rank'] >= 100):
+                if(row['rank'] > 100):
                     break
-                if (row['symbol'] != 'XECUSDT'):
-                    curr = Currency.objects.create(name=row['symbol'] + 'USDT', rank=row['rank'])
-                    curr.save()
+
+                curr = Currency.objects.create(name=row['symbol'], rank=row['rank'])
+                curr.save()
+
+            self.message_user(request, "Currencies added")
         except Exception as e:
             print(e)
         return HttpResponseRedirect("../")

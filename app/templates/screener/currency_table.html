@@ -8,24 +8,41 @@
     <thead class="table-dark">
         <tr>
             <th  rowspan="2">Name</th>
+            <th colspan="2"> 1 min Orders</th>
             {% for el in listTF %}
                 <th colspan="2">{{el}} min</th>
             {% endfor %}
             <th width='10%'></th>
         </tr>
         <tr>
+            <th>Order_Bid</th>
+            <th>Order_Ask</th>
             {% for el in listTF %}
                 <th>Have_Impulse</th>
-            <th>Count_in_impulse</th>
+                <th>Count_in_impulse</th>
             {% endfor %}
         </tr>
     </thead>
     <tbody>
+        {% load my_color_filter %}
         {% for el in result %}
             <tr>
-                <td>{{el.name}}</td>
+                 <td>{{el.name}}</td>
+                 <td  class="{{el.orderL|filter_count_OrderL}}">
+                     {% if el.orderL >= 5%}
+                        <a style='color:white' href={% url 'screener:chartOrder' el.name 'bids'%}>{{el.orderL}} min</a>
+                     {% else %}
+                        <a style='color:black'  href={% url 'screener:chartOrder' el.name 'bids'%}>{{el.orderL}} min</a>
+                     {% endif%}
+                 </td>
+                 <td  class="{{el.orderS|filter_count_OrderS}}">
+                     {% if el.orderS >= 5%}
+                        <a style='color:white' href={% url 'screener:chartOrder' el.name 'asks'%}>{{el.orderS}} min</a>
+                     {% else %}
+                        <a style='color:black'  href={% url 'screener:chartOrder' el.name 'asks'%}>{{el.orderS}} min</a>
+                     {% endif%}
+                 </td>
                     {% for imp in el.impInfo%}
-                    {% load my_color_filter %}
                         <td class="{{imp.impulse.isOpen|my_color_filter}}">
                             {% if imp.impulse.isOpen == 1%}
                                 <a style='color:white' href={% url 'screener:test_view' el.name imp.TF%}>В импульсе</a>

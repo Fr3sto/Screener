@@ -1,4 +1,4 @@
-from .models import BinanceKey, Currency,Candles, Impulses, BigOrders
+from .models import BinanceKey, Currency,Candles, Impulses, BigOrders, OrdersRealtime
 from datetime import datetime
 import pandas as pd
 import pytz
@@ -56,8 +56,32 @@ def insertOrder(symbol, type, dateStart, dateEnd, price, quantity, pow):
     except Exception as e:
         print(e)
 
-def getOrders(currency):
-    return BigOrders.objects.filter(symbol = currency)
+def insertOrdersRealTimeOrUpdate(symbol, type, dateStart, dateEnd, price, quantity, pow):
+    try:
+        curr = Currency.objects.get(name = symbol)
+        if not OrdersRealtime.objects.filter(symbol = curr, type = type).exists():
+            order = OrdersRealtime.objects.create(symbol=curr, type=type, dateStart=dateStart, dateEnd=dateEnd,
+                                                  price=price, quantity=quantity, pow=pow)
+            order.save()
+        else:
+            order = OrdersRealtime.objects.get(symbol_id=curr, type=type)
+            order.dateEnd = dateEnd
+            order.save()
+    except Exception as e:
+        print(e)
+
+def deleteAllOrdersRT():
+    OrdersRealtime.objects.all().delete()
+
+def deleteOrdersRealTime(symbol, type):
+    try:
+        curr = Currency.objects.get(name = symbol)
+        OrdersRealtime.objects.filter(symbol_id = curr, type = type).delete()
+    except Exception as e:
+        print(e)
+
+def getOrders(currency, type):
+    return BigOrders.objects.filter(symbol = currency, type = type)
 
 def insertCandle(currency, tf, candle):
     date = datetime.fromtimestamp(int(str(candle[0])[0:10]))

@@ -4,6 +4,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import numpy as np
+from .models import  Impulses, Currency, Candles, BigOrders,OrdersRealtime
+from .db_request import getCandlesDF, getOrders
 
 def atr(df, period):
     df['Max'] =  df['High'].rolling(period).max().shift().fillna(0)
@@ -115,7 +117,7 @@ def impulse_long(df_HighTF, pulse_percent = 0.2):
                 impulses[-1][5] = False
                 return impulses[-1]
         return impulses[-1]
-def getChartWithImpulse(df, impulse,bigOrders, tf):
+def getChartWithImpulse(df, impulse, tf):
     #fig = px.line(df, x = 'Date', y = 'Close')
 
     fig = go.Figure(data=[go.Candlestick(x=df['Date'],
@@ -159,12 +161,49 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
                                   x0=line[0], y0=line[1], x1=line[2], y1=line[3],
                                   line=dict(color="Green", width=3))
 
-    if len(bigOrders) != 0:
-        # dfOrders = pd.DataFrame([vars(s) for s in bigOrders])
-        #
-        # dfOrders['date'] = dfOrders['date'].values.astype('<M8[m]')
-        #
-        # obj = px.scatter(dfOrders, x = 'date', y = 'price')
+    # if len(bigOrders) != 0:
+    #     # dfOrders = pd.DataFrame([vars(s) for s in bigOrders])
+    #     #
+    #     # dfOrders['date'] = dfOrders['date'].values.astype('<M8[m]')
+    #     #
+    #     # obj = px.scatter(dfOrders, x = 'date', y = 'price')
+    #     x = [x.dateEnd for x in bigOrders]
+    #     y = [x.price for x in bigOrders]
+    #
+    #
+    #     listX = []
+    #     listY = []
+    #     for el in bigOrders:
+    #         start_date = el.dateStart.replace(second=0, microsecond=0)
+    #         end_date = el.dateEnd.replace(second=0, microsecond=0)
+    #         mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+    #         dfR = df.loc[mask]
+    #         for index, row in dfR.iterrows():
+    #             listX.append(row['Date'])
+    #             listY.append(el.price)
+    #
+    #
+    #     fig.add_scatter(x = listX, y = listY, mode='markers', marker=dict(size=10, color="Green"))
+
+
+
+    chart = fig.to_html()
+
+    return chart
+
+def getChartWithOrders(name):
+    currency = Currency.objects.get(name=name)
+    df = getCandlesDF(currency, 1)
+
+
+    fig = go.Figure(data=[go.Candlestick(x=df['Date'],
+                                         open=df['Open'], high=df['High'],
+                                         low=df['Low'], close=df['Close'])])
+
+    fig.update_layout(xaxis_rangeslider_visible=False)
+
+    if BigOrders.objects.filter(symbol = currency,type = 'bids').exists():
+        bigOrders = BigOrders.objects.filter(symbol = currency,type = 'bids')
         x = [x.dateEnd for x in bigOrders]
         y = [x.price for x in bigOrders]
 
@@ -182,6 +221,62 @@ def getChartWithImpulse(df, impulse,bigOrders, tf):
 
 
         fig.add_scatter(x = listX, y = listY, mode='markers', marker=dict(size=10, color="Green"))
+
+    if BigOrders.objects.filter(symbol = currency,type = 'asks').exists():
+        bigOrders = BigOrders.objects.filter(symbol=currency, type='asks')
+        x = [x.dateEnd for x in bigOrders]
+        y = [x.price for x in bigOrders]
+
+        listX = []
+        listY = []
+        for el in bigOrders:
+            start_date = el.dateStart.replace(second=0, microsecond=0)
+            end_date = el.dateEnd.replace(second=0, microsecond=0)
+            mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+            dfR = df.loc[mask]
+            for index, row in dfR.iterrows():
+                listX.append(row['Date'])
+                listY.append(el.price)
+
+        fig.add_scatter(x=listX, y=listY, mode='markers', marker=dict(size=10, color="Red"))
+    # ЗДЕСЬ ИДУТ ТЕКУЩИЕ ЗАЯВКИ
+    if OrdersRealtime.objects.filter(symbol = currency,type = 'bids').exists():
+        bigOrders = OrdersRealtime.objects.filter(symbol = currency,type = 'bids')
+        x = [x.dateEnd for x in bigOrders]
+        y = [x.price for x in bigOrders]
+
+
+        listX = []
+        listY = []
+        for el in bigOrders:
+            start_date = el.dateStart.replace(second=0, microsecond=0)
+            end_date = el.dateEnd.replace(second=0, microsecond=0)
+            mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+            dfR = df.loc[mask]
+            for index, row in dfR.iterrows():
+                listX.append(row['Date'])
+                listY.append(el.price)
+
+
+        fig.add_scatter(x = listX, y = listY, mode='markers', marker=dict(size=10, color="Green"))
+
+    if OrdersRealtime.objects.filter(symbol = currency,type = 'asks').exists():
+        bigOrders = OrdersRealtime.objects.filter(symbol=currency, type='asks')
+        x = [x.dateEnd for x in bigOrders]
+        y = [x.price for x in bigOrders]
+
+        listX = []
+        listY = []
+        for el in bigOrders:
+            start_date = el.dateStart.replace(second=0, microsecond=0)
+            end_date = el.dateEnd.replace(second=0, microsecond=0)
+            mask = (df['Date'] >= start_date) & (df['Date'] <= end_date)
+            dfR = df.loc[mask]
+            for index, row in dfR.iterrows():
+                listX.append(row['Date'])
+                listY.append(el.price)
+
+        fig.add_scatter(x=listX, y=listY, mode='markers', marker=dict(size=10, color="Red"))
 
 
 
