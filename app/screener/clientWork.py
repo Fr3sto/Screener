@@ -126,22 +126,11 @@ def getPartOfBook(part, ex):
 
                         for el in diff:
                             if good_orders[type][symbol][el]['countSec'] >= 120:
-                                # print(
-                                #     f'Inserting Symbol {symbol}. Price {el}, Quantity {good_orders[type][symbol][el]["quantity"]}, Pow - {good_orders[type][symbol][el]["pow"]} Time Live {good_orders[type][symbol][el]["countSec"]}sec')
-                                #
-
                                 print(f"Insert Big Order {symbol} Time {good_orders[type][symbol][el]['countSec']} sec")
-                                th1 = Thread(target=insertOrder, args=(
-                                symbol, type, good_orders[type][symbol][el]['dateStart'], good_orders[type][symbol][el]['dateEnd'],
-                                el, good_orders[type][symbol][el]['quantity'], good_orders[type][symbol][el]['pow']))
-                                th1.start()
-                                th1.join()
+                                insertOrder(symbol, type, good_orders[type][symbol][el]['dateStart'], good_orders[type][symbol][el]['dateEnd'],
+                                el, good_orders[type][symbol][el]['quantity'], good_orders[type][symbol][el]['pow'])
 
-
-                            th2 = Thread(target=deleteOrdersRealTime, args=(symbol, type))
-                            th2.start()
-                            th2.join()
-
+                            deleteOrdersRealTime(symbol, type)
                             del good_orders[type][symbol][el]
                     for el in max_orders:
                         if el[0] in good_orders[type][symbol]:
@@ -151,14 +140,11 @@ def getPartOfBook(part, ex):
                             good_orders[type][symbol][el[0]]['quantity'] = el[1]
                             good_orders[type][symbol][el[0]]['dateEnd'] = datetime.now()
                             if newTime % 60 < 10 and lastTime % 60 > 50:
-                                #print(f"BIG ORDER ADD REAL-TIME Symbol {symbol} type {type}")
-                                th1 = Thread(target=insertOrdersRealTimeOrUpdate, args=(
-                                    symbol, type, good_orders[type][symbol][el[0]]['dateStart'],
+                                print(f"BIG ORDER ADD REAL-TIME Symbol {symbol} type {type}")
+                                insertOrdersRealTimeOrUpdate(symbol, type, good_orders[type][symbol][el[0]]['dateStart'],
                                     good_orders[type][symbol][el[0]]['dateEnd'],
                                     el[0], good_orders[type][symbol][el[0]]['quantity'],
-                                    good_orders[type][symbol][el[0]]['pow']))
-                                th1.start()
-                                th1.join()
+                                    good_orders[type][symbol][el[0]]['pow'])
                         else:
                             good_orders[type][symbol][el[0]] = {'countSec': 0, 'quantity': el[1],
                                                                 'dateStart': datetime.now(),
